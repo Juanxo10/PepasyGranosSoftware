@@ -1,9 +1,10 @@
-require("dotenv").config();
+require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const logger = require("./utils/logger");
 
+const { warmup } = require("./services/pedidoService");
 const pedidosRoutes = require("./routes/pedidos");
 const authRoutes = require("./routes/auth");
 const staffRoutes = require("./routes/staff");
@@ -44,4 +45,5 @@ app.use((err, req, res, _next) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   logger.info(`Servidor corriendo en http://localhost:${PORT}`);
+  warmup(); // establece la conexión al DB al arrancar
 });

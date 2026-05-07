@@ -3,6 +3,16 @@ const pool = require("../db");
 const ESTADOS_VALIDOS = ["nuevo", "preparando", "camino", "entregado", "cancelado"];
 const METODOS_VALIDOS = ["Contraentrega en efectivo", "Transferencia Wompi"];
 
+// ── Caché en memoria para pedidos ───────────────────────
+let _cache = null;
+let _cacheTs = 0;
+const CACHE_TTL = 30_000; // 30 s de TTL máximo
+
+function invalidarCache() {
+  _cache = null;
+  _cacheTs = 0;
+}
+
 // ── Crear pedido ─────────────────────────────────────────
 async function crearPedido({ bowls, extraItems, cliente, metodo_pago }) {
   if (!METODOS_VALIDOS.includes(metodo_pago)) {
@@ -166,55 +176,76 @@ async function crearPedido({ bowls, extraItems, cliente, metodo_pago }) {
 
 // ── Listar pedidos ───────────────────────────────────────
 async function listarPedidos() {
+  if (_cache && Date.now() - _cacheTs < CACHE_TTL) return _cache;
+  // 1 sola query para pedidos
   const pedidosRes = await pool.query(
     "SELECT * FROM pedidos WHERE estado != 'pendiente_pago' ORDER BY creado_en DESC"
   );
+  if (!pedidosRes.rows.length) return [];
 
-  const pedidos = [];
+  const pedidoIds = pedidosRes.rows.map((p) => p.id);
 
-  for (const p of pedidosRes.rows) {
-    // Bowls con base y bebida
-    const bowlsRes = await pool.query(
-      `SELECT b.id, base.nombre AS base, beb.nombre AS bebida
+  // 3 queries en paralelo para bowls, bowl_items y extras de todos los pedidos
+  const [bowlsRes, itemsRes, extrasRes] = await Promise.all([
+    pool.query(
+      `SELECT b.id, b.pedido_id, base.nombre AS base, beb.nombre AS bebida
        FROM bowls b
        LEFT JOIN productos base ON b.base_id = base.id
        LEFT JOIN productos beb  ON b.bebida_id = beb.id
-       WHERE b.pedido_id = $1`,
-      [p.id]
-    );
-
-    const bowls = [];
-    for (const bowl of bowlsRes.rows) {
-      const itemsRes = await pool.query(
-        `SELECT pr.nombre, pr.tipo
-         FROM bowl_items bi
-         JOIN productos pr ON bi.producto_id = pr.id
-         WHERE bi.bowl_id = $1`,
-        [bowl.id]
-      );
-      bowls.push({
-        base: bowl.base,
-        bebida: bowl.bebida,
-        toppings: itemsRes.rows.filter((i) => i.tipo === "topping").map((i) => i.nombre),
-        proteinas: itemsRes.rows.filter((i) => i.tipo === "proteina").map((i) => i.nombre),
-        incluidos: itemsRes.rows.filter((i) => i.tipo === "incluido").map((i) => i.nombre),
-      });
-    }
-
-    // Extras
-    const extrasRes = await pool.query(
-      `SELECT pr.nombre, pe.cantidad
+       WHERE b.pedido_id = ANY($1)`,
+      [pedidoIds]
+    ),
+    pool.query(
+      `SELECT bi.bowl_id, pr.nombre, pr.tipo
+       FROM bowl_items bi
+       JOIN productos pr ON bi.producto_id = pr.id
+       WHERE bi.bowl_id IN (
+         SELECT id FROM bowls WHERE pedido_id = ANY($1)
+       )`,
+      [pedidoIds]
+    ),
+    pool.query(
+      `SELECT pe.pedido_id, pr.nombre, pe.cantidad
        FROM pedido_extras pe
        JOIN productos pr ON pe.producto_id = pr.id
-       WHERE pe.pedido_id = $1`,
-      [p.id]
-    );
-    const extras = {};
-    for (const e of extrasRes.rows) {
-      extras[e.nombre] = e.cantidad;
-    }
+       WHERE pe.pedido_id = ANY($1)`,
+      [pedidoIds]
+    ),
+  ]);
 
-    pedidos.push({
+  // Indexar bowls por pedido_id
+  const bowlsByPedido = {};
+  for (const b of bowlsRes.rows) {
+    if (!bowlsByPedido[b.pedido_id]) bowlsByPedido[b.pedido_id] = [];
+    bowlsByPedido[b.pedido_id].push({ id: b.id, base: b.base, bebida: b.bebida });
+  }
+
+  // Indexar items por bowl_id
+  const itemsByBowl = {};
+  for (const i of itemsRes.rows) {
+    if (!itemsByBowl[i.bowl_id]) itemsByBowl[i.bowl_id] = [];
+    itemsByBowl[i.bowl_id].push(i);
+  }
+
+  // Indexar extras por pedido_id
+  const extrasByPedido = {};
+  for (const e of extrasRes.rows) {
+    if (!extrasByPedido[e.pedido_id]) extrasByPedido[e.pedido_id] = {};
+    extrasByPedido[e.pedido_id][e.nombre] = e.cantidad;
+  }
+
+  return pedidosRes.rows.map((p) => {
+    const bowls = (bowlsByPedido[p.id] || []).map((b) => {
+      const items = itemsByBowl[b.id] || [];
+      return {
+        base: b.base,
+        bebida: b.bebida,
+        toppings:  items.filter((i) => i.tipo === "topping").map((i) => i.nombre),
+        proteinas: items.filter((i) => i.tipo === "proteina").map((i) => i.nombre),
+        incluidos: items.filter((i) => i.tipo === "incluido").map((i) => i.nombre),
+      };
+    });
+    return {
       id: p.id,
       numero_pedido: p.numero_pedido,
       nombre: p.nombre_cliente,
@@ -230,11 +261,13 @@ async function listarPedidos() {
       total: p.total,
       hora: p.creado_en,
       bowls,
-      extraItems: extras,
-    });
-  }
+      extraItems: extrasByPedido[p.id] || {},
+    };
+  });
 
-  return pedidos;
+  _cache = result;
+  _cacheTs = Date.now();
+  return result;
 }
 
 // ── Cambiar estado ───────────────────────────────────────
@@ -249,6 +282,7 @@ async function cambiarEstado(id, estado) {
   if (!res.rows.length) {
     throw { status: 404, message: "Pedido no encontrado" };
   }
+  invalidarCache();
   return res.rows[0];
 }
 
@@ -269,7 +303,18 @@ async function updateWompiPayment(numero_pedido, wompiTransactionId, estadoPago)
   if (!res.rows.length) {
     throw { status: 404, message: "Pedido no encontrado" };
   }
+  invalidarCache();
   return res.rows[0];
 }
 
-module.exports = { crearPedido, listarPedidos, cambiarEstado, updateWompiPayment };
+// ── Warmup: conecta al DB en cuanto arranca el servidor ──
+async function warmup() {
+  try {
+    await pool.query("SELECT 1");
+    console.log("✅ DB warmup OK");
+  } catch (e) {
+    console.error("⚠️  DB warmup falló:", e.message);
+  }
+}
+
+module.exports = { crearPedido, listarPedidos, cambiarEstado, updateWompiPayment, warmup, invalidarCache };
