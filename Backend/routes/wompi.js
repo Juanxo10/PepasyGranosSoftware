@@ -117,4 +117,33 @@ router.post("/integrity-hash", (req, res) => {
   res.json({ integrity });
 });
 
+// ─── GET /api/wompi/verificar/:transactionId ──────────────────────────────────
+// El frontend llama esto al volver del checkout de Wompi para confirmar el pago
+router.get("/verificar/:transactionId", async (req, res) => {
+  const { transactionId } = req.params;
+  try {
+    const r = await fetch(`https://sandbox.wompi.co/v1/transactions/${transactionId}`);
+    if (!r.ok) return res.status(502).json({ error: "No se pudo consultar Wompi" });
+    const data = await r.json();
+    const tx = data?.data;
+    if (!tx) return res.status(502).json({ error: "Respuesta inválida de Wompi" });
+
+    const estadoPagoMap = { APPROVED: "aprobado", DECLINED: "rechazado", ERROR: "error", VOIDED: "rechazado", PENDING: "pendiente" };
+    const estadoPago = estadoPagoMap[tx.status] ?? "pendiente";
+
+    if (estadoPago === "aprobado" || estadoPago === "rechazado" || estadoPago === "error") {
+      try {
+        await updateWompiPayment(tx.reference, tx.id, estadoPago);
+      } catch (e) {
+        if (e.status !== 404) logger.error({ e }, "Error actualizando pago en verificar");
+      }
+    }
+
+    res.json({ status: tx.status, estadoPago, reference: tx.reference });
+  } catch (err) {
+    logger.error({ err }, "Error verificando transacción Wompi");
+    res.status(500).json({ error: "Error interno" });
+  }
+});
+
 module.exports = router;

@@ -317,4 +317,64 @@ async function warmup() {
   }
 }
 
-module.exports = { crearPedido, listarPedidos, cambiarEstado, updateWompiPayment, warmup, invalidarCache };
+// ── Job: revisar pedidos Wompi pendientes ──────────────────
+async function revisarPendientesWompi() {
+  let pendientes;
+  try {
+    const res = await pool.query(
+      `SELECT numero_pedido, wompi_transaction_id
+       FROM pedidos
+       WHERE metodo_pago = 'Transferencia Wompi'
+         AND estado = 'pendiente_pago'
+         AND creado_en < NOW() - INTERVAL '2 minutes'
+         AND creado_en > NOW() - INTERVAL '24 hours'`
+    );
+    pendientes = res.rows;
+  } catch (e) {
+    console.error("⚠️  Job Wompi - error consultando BD:", e.message);
+    return;
+  }
+
+  if (!pendientes.length) {
+    console.log("Job Wompi: sin pendientes");
+    return;
+  }
+
+  console.log(`Job Wompi: revisando ${pendientes.length} pedido(s) pendiente(s)`);
+
+  // Siempre usar sandbox mientras WOMPI_PRIVATE_KEY sea de pruebas
+  const privateKey = process.env.WOMPI_PRIVATE_KEY || "";
+  const baseUrl = privateKey.startsWith("prv_prod")
+    ? "https://production.wompi.co/v1"
+    : "https://sandbox.wompi.co/v1";
+  const headers = { Authorization: `Bearer ${privateKey}` };
+
+  for (const pedido of pendientes) {
+    try {
+      const url = `${baseUrl}/transactions?reference=${pedido.numero_pedido}`;
+      console.log(`Job Wompi: consultando ${url}`);
+
+      const r = await fetch(url, { headers });
+      const text = await r.text();
+      console.log(`Job Wompi: respuesta ${r.status} → ${text.slice(0, 200)}`);
+      if (!r.ok) continue;
+
+      const data = JSON.parse(text);
+      const tx = Array.isArray(data?.data) ? data.data[0] : data?.data;
+      if (!tx) { console.log(`Job Wompi: sin transacción para ${pedido.numero_pedido}`); continue; }
+
+      console.log(`Job Wompi: ${pedido.numero_pedido} status=${tx.status}`);
+
+      const estadoPagoMap = { APPROVED: "aprobado", DECLINED: "rechazado", ERROR: "error", VOIDED: "rechazado" };
+      const estadoPago = estadoPagoMap[tx.status];
+      if (!estadoPago) { console.log(`Job Wompi: ${pedido.numero_pedido} aún PENDING`); continue; }
+
+      await updateWompiPayment(tx.reference, tx.id, estadoPago);
+      console.log(`✅ Pago recuperado: ${tx.reference} → ${estadoPago}`);
+    } catch (e) {
+      console.error(`⚠️  Job Wompi - error en ${pedido.numero_pedido}:`, e.message);
+    }
+  }
+}
+
+module.exports = { crearPedido, listarPedidos, cambiarEstado, updateWompiPayment, warmup, invalidarCache, revisarPendientesWompi };

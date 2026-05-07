@@ -125,7 +125,48 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:va
 .hist-stat span{font-weight:500;color:var(--muted);font-size:.72rem;}
 .hist-date-group{margin-bottom:1.5rem;}
 .hist-date-label{font-size:.75rem;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:.5rem 0;border-bottom:1px solid var(--border);margin-bottom:.75rem;}
+/* ─── MENÚ HAMBURGUESA MÓVIL ─── */
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:.4rem;}
+.hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:all .2s;}
+.mobile-menu{display:none;}
 @media(max-width:768px){
+  .hamburger{display:flex;}
+  .nav-right{display:none !important;}
+  .mobile-menu{
+    display:block;
+    position:fixed;top:0;right:0;bottom:0;width:75vw;max-width:280px;
+    background:var(--g900);z-index:200;
+    transform:translateX(100%);transition:transform .25s ease;
+    padding:1.2rem 1rem;
+    overflow-y:auto;
+  }
+  .mobile-menu.open{transform:translateX(0);}
+  .mobile-menu-overlay{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;
+  }
+  .mobile-menu-overlay.open{display:block;}
+  .mobile-menu-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+  .mobile-menu-header .brand-name{color:#fff;font-size:1.1rem;}
+  .btn-close-menu{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;padding:.2rem;}
+  .mobile-nav-btn{
+    display:block;width:100%;text-align:left;
+    background:rgba(255,255,255,.07);border:none;border-radius:10px;
+    color:#fff;font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:.88rem;font-weight:600;padding:.7rem 1rem;
+    margin-bottom:.5rem;cursor:pointer;transition:background .15s;
+  }
+  .mobile-nav-btn:hover,.mobile-nav-btn.active{background:rgba(255,255,255,.15);}
+  .mobile-nav-btn.danger{color:#fca5a5;}
+  .mobile-caja-btn{
+    display:flex;align-items:center;gap:.5rem;width:100%;
+    border:none;border-radius:10px;padding:.7rem 1rem;
+    font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;
+    cursor:pointer;margin-bottom:.5rem;
+  }
+  .mobile-caja-btn.abierta{background:#4ade80;color:#14532d;}
+  .mobile-caja-btn.cerrada{background:#fee2e2;color:#991b1b;}
+  .mobile-live{display:flex;align-items:center;gap:.4rem;color:var(--g400);font-size:.78rem;font-weight:600;padding:.5rem 0;}
+  .mobile-live span{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse 1.5s infinite;}
   .topnav{padding:.6rem .7rem;gap:.4rem;}
   .brand-name{font-size:1rem;}
   .brand-sub{display:none;}
@@ -490,6 +531,7 @@ export default function Admin() {
   // Modal de confirmación genérico
   const [confirmModal, setConfirmModal] = useState(null); // { mensaje, onConfirm }
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -732,6 +774,29 @@ export default function Admin() {
       <style>{CSS}</style>
 
       {/* NAV */}
+      {/* Overlay menú móvil */}
+      <div className={`mobile-menu-overlay${mobileMenuOpen ? " open" : ""}`} onClick={() => setMobileMenuOpen(false)} />
+      {/* Drawer menú móvil */}
+      <div className={`mobile-menu${mobileMenuOpen ? " open" : ""}`}>
+        <div className="mobile-menu-header">
+          <div className="brand-name">pepas</div>
+          <button className="btn-close-menu" onClick={() => setMobileMenuOpen(false)}>✕</button>
+        </div>
+        <div className="mobile-live"><span></span> En vivo</div>
+        {tiendaAbierta !== null && (
+          <button className={`mobile-caja-btn${tiendaAbierta ? " abierta" : " cerrada"}`} onClick={() => { setMobileMenuOpen(false); toggleCaja(); }} disabled={cajaCargando}>
+            <span className="caja-dot" style={{width:8,height:8,borderRadius:'50%',background:tiendaAbierta?'#14532d':'#991b1b'}} />
+            {cajaCargando ? "…" : tiendaAbierta ? "Caja abierta" : "Caja cerrada"}
+          </button>
+        )}
+        {isAdmin && <button className={`mobile-nav-btn${view==="sugerencias"?" active":""}`} onClick={() => { setView(view==="sugerencias"?"hoy":"sugerencias"); setMobileMenuOpen(false); }}>Sugerencias</button>}
+        {isAdmin && <button className={`mobile-nav-btn${view==="usuarios"?" active":""}`} onClick={() => { setView(view==="usuarios"?"hoy":"usuarios"); setSearch(""); setFilterStatus("todos"); setMobileMenuOpen(false); }}>Usuarios</button>}
+        {isAdmin && <button className={`mobile-nav-btn${view==="stats"?" active":""}`} onClick={() => { setView(view==="stats"?"hoy":"stats"); setSearch(""); setFilterStatus("todos"); setMobileMenuOpen(false); }}>Estadísticas</button>}
+        {isAdmin && <button className={`mobile-nav-btn${view==="historial"?" active":""}`} onClick={() => { setView(view==="historial"?"hoy":"historial"); setSearch(""); setFilterStatus("todos"); setMobileMenuOpen(false); }}>Historial</button>}
+        <button className={`mobile-nav-btn${view==="inventario"?" active":""}`} onClick={() => { setView(view==="inventario"?"hoy":"inventario"); setMobileMenuOpen(false); }}>Inventario</button>
+        <button className="mobile-nav-btn danger" onClick={() => { setMobileMenuOpen(false); handleLogout(); }}>Salir</button>
+      </div>
+
       <div className="topnav">
         <div className="brand-wrap">
           <div>
@@ -740,36 +805,15 @@ export default function Admin() {
           </div>
           <span className="admin-badge">{isAdmin ? "Admin" : "Empleado"}</span>
         </div>
+        {/* Botones desktop */}
         <div className="nav-right">
-          {isAdmin && (
-            <button className={`btn-historial${view === "sugerencias" ? " active" : ""}`} onClick={() => { setView(view === "sugerencias" ? "hoy" : "sugerencias"); }}>
-              {view === "sugerencias" ? "Volver" : "Sugerencias"}
-            </button>
-          )}
-          {isAdmin && (
-            <button className={`btn-historial${view === "usuarios" ? " active" : ""}`} onClick={() => { setView(view === "usuarios" ? "hoy" : "usuarios"); setSearch(""); setFilterStatus("todos"); }}>
-              {view === "usuarios" ? "Volver" : "Usuarios"}
-            </button>
-          )}
-          {isAdmin && (
-            <button className={`btn-historial${view === "stats" ? " active" : ""}`} onClick={() => { setView(view === "stats" ? "hoy" : "stats"); setSearch(""); setFilterStatus("todos"); }}>
-              {view === "stats" ? "Volver" : "Estadísticas"}
-            </button>
-          )}
-          {isAdmin && (
-            <button className={`btn-historial${view === "historial" ? " active" : ""}`} onClick={() => { setView(view === "historial" ? "hoy" : "historial"); setSearch(""); setFilterStatus("todos"); }}>
-              {view === "historial" ? "Volver a hoy" : "Historial"}
-            </button>
-          )}
-          <button className={`btn-historial${view === "inventario" ? " active" : ""}`} onClick={() => { setView(view === "inventario" ? "hoy" : "inventario"); }}>
-            {view === "inventario" ? "Volver" : "Inventario"}
-          </button>
+          {isAdmin && <button className={`btn-historial${view==="sugerencias"?" active":""}`} onClick={() => setView(view==="sugerencias"?"hoy":"sugerencias")}>{view==="sugerencias"?"Volver":"Sugerencias"}</button>}
+          {isAdmin && <button className={`btn-historial${view==="usuarios"?" active":""}`} onClick={() => { setView(view==="usuarios"?"hoy":"usuarios"); setSearch(""); setFilterStatus("todos"); }}>{view==="usuarios"?"Volver":"Usuarios"}</button>}
+          {isAdmin && <button className={`btn-historial${view==="stats"?" active":""}`} onClick={() => { setView(view==="stats"?"hoy":"stats"); setSearch(""); setFilterStatus("todos"); }}>{view==="stats"?"Volver":"Estadísticas"}</button>}
+          {isAdmin && <button className={`btn-historial${view==="historial"?" active":""}`} onClick={() => { setView(view==="historial"?"hoy":"historial"); setSearch(""); setFilterStatus("todos"); }}>{view==="historial"?"Volver a hoy":"Historial"}</button>}
+          <button className={`btn-historial${view==="inventario"?" active":""}`} onClick={() => setView(view==="inventario"?"hoy":"inventario")}>{view==="inventario"?"Volver":"Inventario"}</button>
           {tiendaAbierta !== null && (
-            <button
-              className={`caja-btn${tiendaAbierta ? " abierta" : " cerrada"}`}
-              onClick={toggleCaja}
-              disabled={cajaCargando}
-            >
+            <button className={`caja-btn${tiendaAbierta ? " abierta" : " cerrada"}`} onClick={toggleCaja} disabled={cajaCargando}>
               <span className="caja-dot" />
               {cajaCargando ? "…" : tiendaAbierta ? "Caja abierta" : "Caja cerrada"}
             </button>
@@ -777,6 +821,10 @@ export default function Admin() {
           <div className="live-dot"><span></span> En vivo</div>
           <button className="btn-logout" onClick={handleLogout}>Salir</button>
         </div>
+        {/* Botón hamburguesa móvil */}
+        <button className="hamburger" onClick={() => setMobileMenuOpen(true)} aria-label="Menú">
+          <span /><span /><span />
+        </button>
       </div>
 
       {/* STATS */}

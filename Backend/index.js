@@ -4,7 +4,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const logger = require("./utils/logger");
 
-const { warmup } = require("./services/pedidoService");
+const { warmup, revisarPendientesWompi } = require("./services/pedidoService");
 const pedidosRoutes = require("./routes/pedidos");
 const authRoutes = require("./routes/auth");
 const staffRoutes = require("./routes/staff");
@@ -16,10 +16,16 @@ const app = express();
 
 // ─── Seguridad HTTP ──────────────────────────────────────────────────────────
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+
+const corsOptions = {
+  origin: [
+    "https://pepascoffee.com",
+    "https://www.pepascoffee.com",
+    process.env.CORS_ORIGIN || "http://localhost:5173",
+  ],
   credentials: true,
-}));
+};
+app.use(cors(corsOptions));
 
 // ─── Wompi webhook necesita raw body → lo maneja internamente con express.raw() ──
 // Registrar DESPUÉS de express.json() para que integrity-hash reciba el body
@@ -45,5 +51,8 @@ app.use((err, req, res, _next) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   logger.info(`Servidor corriendo en http://localhost:${PORT}`);
-  warmup(); // establece la conexión al DB al arrancar
+  warmup();
+  // Revisar pagos Wompi pendientes: inmediatamente y cada 1 minuto
+  setTimeout(revisarPendientesWompi, 10_000); // 10s después de arrancar
+  setInterval(revisarPendientesWompi, 60_000);
 });
