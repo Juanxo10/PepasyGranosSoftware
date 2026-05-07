@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/image.png";
+import { API_URL } from "../config";
 
 const CARBOS = ["Arroz integral", "Papa criolla", "Quinoa"];
 
@@ -216,11 +217,11 @@ export default function Menu() {
   const [vinagreta, setVinagreta] = useState(true);
 
   useEffect(() => {
-    fetch("/api/tienda/estado")
+    fetch(`${API_URL}/api/tienda/estado`)
       .then((r) => r.json())
       .then((d) => setTiendaAbierta(d.abierto))
       .catch(() => setTiendaAbierta(false));
-    fetch("/api/tienda/productos")
+    fetch(`${API_URL}/api/tienda/productos`)
       .then((r) => r.json())
       .then((d) => setDesactivados(new Set(d.desactivados)))
       .catch(() => {});

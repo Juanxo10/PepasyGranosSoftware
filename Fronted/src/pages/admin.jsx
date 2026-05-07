@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 
 const fmt = (n) => "$" + n.toLocaleString("es-CO");
 
@@ -498,7 +499,7 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    fetch("/api/tienda/estado")
+    fetch(`${API_URL}/api/tienda/estado`)
       .then((r) => r.json())
       .then((d) => setTiendaAbierta(d.abierto))
       .catch(() => setTiendaAbierta(false));
@@ -513,7 +514,7 @@ export default function Admin() {
         setConfirmModal(null);
         setCajaCargando(true);
         try {
-          const res = await fetch("/api/tienda/estado", { method: "PATCH", headers: authHeaders });
+          const res = await fetch(`${API_URL}/api/tienda/estado`, { method: "PATCH", headers: authHeaders });
           const d = await res.json();
           setTiendaAbierta(d.abierto);
         } catch (err) {
@@ -525,7 +526,7 @@ export default function Admin() {
   };
 
   const fetchProductos = () => {
-    fetch("/api/tienda/productos")
+    fetch(`${API_URL}/api/tienda/productos`)
       .then((r) => r.json())
       .then((d) => setProductosDesactivados(new Set(d.desactivados)))
       .catch(() => {});
@@ -536,7 +537,7 @@ export default function Admin() {
     const ejecutar = async () => {
       setInvCargando(true);
       try {
-        const res = await fetch(`/api/tienda/productos/${encodeURIComponent(nombre)}`, {
+        const res = await fetch(`${API_URL}/api/tienda/productos/${encodeURIComponent(nombre)}`, {
           method: "PATCH",
           headers: authHeaders,
         });
@@ -559,7 +560,7 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    fetch("/api/pedidos")
+    fetch(`${API_URL}/api/pedidos`)
       .then((r) => r.json())
       .then((data) => { setOrders(data); setOrdersLoading(false); })
       .catch((err) => { console.error("Error al cargar pedidos:", err); setOrdersLoading(false); });
@@ -571,7 +572,7 @@ export default function Admin() {
     if (statsDesde) params.set("desde", statsDesde);
     if (statsHasta) params.set("hasta", statsHasta);
     const qs = params.toString();
-    fetch(`/api/pedidos/estadisticas${qs ? `?${qs}` : ""}`)
+    fetch(`${API_URL}/api/pedidos/estadisticas${qs ? `?${qs}` : ""}`)
       .then((r) => r.json())
       .then((data) => { setStats(data); setStatsLoading(false); })
       .catch((err) => { console.error("Error al cargar estadísticas:", err); setStatsLoading(false); });
@@ -589,7 +590,7 @@ export default function Admin() {
 
   const fetchStaff = () => {
     setStaffLoading(true);
-    fetch("/api/staff", { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_URL}/api/staff`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((data) => { setStaffList(data); setStaffLoading(false); })
       .catch(() => setStaffLoading(false));
@@ -600,7 +601,7 @@ export default function Admin() {
   const fetchSugerencias = (soloNuevas = false) => {
     setSugLoading(true);
     const qs = soloNuevas ? "?noLeidas=true" : "";
-    fetch(`/api/sugerencias${qs}`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_URL}/api/sugerencias${qs}`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((data) => { setSugerencias(Array.isArray(data) ? data : []); setSugLoading(false); })
       .catch(() => setSugLoading(false));
@@ -611,7 +612,7 @@ export default function Admin() {
   useEffect(() => { if (view === "inventario") fetchProductos(); }, [view]);
 
   const marcarLeida = async (id) => {
-    await fetch(`/api/sugerencias/${id}/leida`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } });
+    await fetch(`${API_URL}/api/sugerencias/${id}/leida`, { method: "PATCH", headers: { Authorization: `Bearer ${token}` } });
     setSugerencias((prev) => prev.map((s) => s.id === id ? { ...s, leida: true } : s));
   };
 
@@ -646,7 +647,7 @@ export default function Admin() {
 
   const toggleUser = async (id) => {
     try {
-      await fetch(`/api/staff/${id}/toggle`, { method: "PATCH", headers: authHeaders });
+      await fetch(`${API_URL}/api/staff/${id}/toggle`, { method: "PATCH", headers: authHeaders });
       fetchStaff();
     } catch (err) { console.error(err); }
   };
@@ -654,7 +655,7 @@ export default function Admin() {
   const changeStatus = async (id, val) => {
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: val } : o)));
     try {
-      await fetch(`/api/pedidos/${id}/estado`, {
+      await fetch(`${API_URL}/api/pedidos/${id}/estado`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ estado: val }),

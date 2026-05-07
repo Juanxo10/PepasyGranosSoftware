@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/image.png";
+import { API_URL } from "../config";
 
 const CAFETERIA_NOMBRES = [
   "Pizzeta pesto", "Pizzeta carne", "Picada especial", "Sopa de tomate",
@@ -244,7 +245,7 @@ export default function Pago() {
 
     try {
       setIsSubmitting(true);
-      const res = await fetch("/api/pedidos", {
+      const res = await fetch(`${API_URL}/api/pedidos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -313,7 +314,7 @@ export default function Pago() {
 
     try {
       setIsSubmitting(true);
-      const res = await fetch("/api/pedidos", {
+      const res = await fetch(`${API_URL}/api/pedidos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -360,7 +361,7 @@ export default function Pago() {
       const publicKey = import.meta.env.VITE_WOMPI_PUBLIC_KEY || "";
 
       // Obtener hash de integridad desde el backend (requerido por Wompi)
-      const hashRes = await fetch("/api/wompi/integrity-hash", {
+      const hashRes = await fetch(`${API_URL}/api/wompi/integrity-hash`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reference, amountInCents, currency: "COP" }),

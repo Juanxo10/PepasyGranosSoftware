@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { API_URL } from './config'
 import Index from './pages/index'
 import Menu from './pages/menu'
 import Pago from './pages/pago'
@@ -14,7 +15,7 @@ function ProtectedAdmin() {
     const token = localStorage.getItem("token");
     if (!token) { setAuth(false); return; }
 
-    fetch("/api/auth/verify", {
+    fetch(`${API_URL}/api/auth/verify`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => {

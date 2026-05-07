@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/image.png";
+import { API_URL } from "../config";
 import img1 from "../assets/1.jpeg";
 import img2 from "../assets/2.jpeg";
 import img3 from "../assets/3.jpeg";
@@ -841,7 +842,7 @@ export default function Index() {
     if (!sug.mensaje.trim()) return;
     setSugState("loading");
     try {
-      const res = await fetch("/api/sugerencias", {
+      const res = await fetch(`${API_URL}/api/sugerencias`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(sug),
