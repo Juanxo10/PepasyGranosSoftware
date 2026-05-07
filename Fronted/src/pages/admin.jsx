@@ -488,6 +488,7 @@ export default function Admin() {
   const [invCargando, setInvCargando] = useState(false);
   // Modal de confirmación genérico
   const [confirmModal, setConfirmModal] = useState(null); // { mensaje, onConfirm }
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -560,8 +561,8 @@ export default function Admin() {
   useEffect(() => {
     fetch("/api/pedidos")
       .then((r) => r.json())
-      .then((data) => setOrders(data))
-      .catch((err) => console.error("Error al cargar pedidos:", err));
+      .then((data) => { setOrders(data); setOrdersLoading(false); })
+      .catch((err) => { console.error("Error al cargar pedidos:", err); setOrdersLoading(false); });
   }, []);
 
   const fetchStats = () => {
@@ -806,7 +807,11 @@ export default function Admin() {
 
       <div className="orders-wrap">
         <div className="orders-grid">
-          {!filtered.length ? (
+          {ordersLoading ? (
+            <div className="empty-state" style={{ gridColumn: "1/-1" }}>
+              <div className="ei" style={{ fontSize: "1rem", color: "var(--g600)" }}>Cargando pedidos...</div>
+            </div>
+          ) : !filtered.length ? (
             <div className="empty-state" style={{ gridColumn: "1/-1" }}>
               <div className="ei">--</div>
               <p>No hay pedidos hoy</p>
