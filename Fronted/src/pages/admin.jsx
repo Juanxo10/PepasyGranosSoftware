@@ -560,7 +560,7 @@ export default function Admin() {
   };
 
   const fetchOrders = () => {
-    fetch(`${API_URL}/api/pedidos`)
+    fetch(`${API_URL}/api/pedidos?_=${Date.now()}`)
       .then((r) => r.json())
       .then((data) => { setOrders(data); setOrdersLoading(false); })
       .catch((err) => { console.error("Error al cargar pedidos:", err); setOrdersLoading(false); });
