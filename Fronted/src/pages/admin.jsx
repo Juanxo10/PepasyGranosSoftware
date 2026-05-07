@@ -559,11 +559,17 @@ export default function Admin() {
     }
   };
 
-  useEffect(() => {
+  const fetchOrders = () => {
     fetch(`${API_URL}/api/pedidos`)
       .then((r) => r.json())
       .then((data) => { setOrders(data); setOrdersLoading(false); })
       .catch((err) => { console.error("Error al cargar pedidos:", err); setOrdersLoading(false); });
+  };
+
+  useEffect(() => {
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 15000); // refresca cada 15s
+    return () => clearInterval(interval);
   }, []);
 
   const fetchStats = () => {
