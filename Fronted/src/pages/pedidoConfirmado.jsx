@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -56,6 +57,14 @@ export default function PedidoConfirmado() {
   const [order, setOrder] = useState(() => location.state?.order ?? null);
 
   useEffect(() => {
+    // Si Wompi redirigió aquí con ?id=TX_ID, verificar el pago
+    const params = new URLSearchParams(window.location.search);
+    const txId = params.get("id");
+    if (txId) {
+      fetch(`${API_URL}/api/wompi/verificar/${txId}`)
+        .catch(() => {});
+    }
+
     if (location.state?.order) {
       setOrder(location.state.order);
       return;
