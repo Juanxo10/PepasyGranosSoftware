@@ -724,8 +724,8 @@ export default function Admin() {
       )
       .join("\n");
     const msg = tipo === "entregado"
-      ? `Hola ${o.nombre}, tu pedido Pepas fue entregado. ¡Gracias por tu compra! 🌿\n\n${lines}\n\nTotal: ${fmt(o.total)}`
-      : `Hola ${o.nombre}, tu pedido Pepas esta en camino.\n\n${lines}\n\nTotal: ${fmt(o.total)}\n\nLlega en aprox. 15 min.`;
+      ? `Hola ${o.nombre}, tu pedido Pepas Coffee fue entregado. ¡Gracias por tu compra! 🌿\n\n${lines}\n\nTotal: ${fmt(o.total)}`
+      : `Hola ${o.nombre}, tu pedido Pepas Coffee esta en camino.\n\n${lines}\n\nTotal: ${fmt(o.total)}\n\nLlega en aprox. 15 min.`;
     const num = o.tel.replace(/\D/g, "");
     window.open(`https://wa.me/57${num}?text=${encodeURIComponent(msg)}`, "_blank");
   };
@@ -779,7 +779,7 @@ export default function Admin() {
       {/* Drawer menú móvil */}
       <div className={`mobile-menu${mobileMenuOpen ? " open" : ""}`}>
         <div className="mobile-menu-header">
-          <div className="brand-name">pepas</div>
+          <div className="brand-name">pepas coffee</div>
           <button className="btn-close-menu" onClick={() => setMobileMenuOpen(false)}>✕</button>
         </div>
         <div className="mobile-live"><span></span> En vivo</div>
@@ -800,7 +800,7 @@ export default function Admin() {
       <div className="topnav">
         <div className="brand-wrap">
           <div>
-            <div className="brand-name">pepas</div>
+            <div className="brand-name">pepas coffee</div>
             <div className="brand-sub">Panel de administración</div>
           </div>
           <span className="admin-badge">{isAdmin ? "Admin" : "Empleado"}</span>

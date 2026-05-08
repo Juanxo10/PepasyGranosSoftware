@@ -73,7 +73,7 @@ export default function Login() {
       <div className="login-page">
         <div className="login-card">
           <div className="login-logo">
-            <h1>pepas</h1>
+            <h1>pepas coffee</h1>
             <p>Panel de administración</p>
             <span className="login-badge">Acceso staff</span>
           </div>

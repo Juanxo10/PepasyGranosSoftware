@@ -95,7 +95,7 @@ export default function PedidoConfirmado() {
 
       <div className="topnav">
         <div>
-          <div className="brand-name">pepas</div>
+          <div className="brand-name">pepas coffee</div>
           <div className="brand-sub">Bowls frescos · Vida saludable</div>
         </div>
         <button className="back-link" onClick={() => navigate("/menu")}>Pedir de nuevo</button>

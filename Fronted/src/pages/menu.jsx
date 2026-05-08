@@ -296,7 +296,7 @@ export default function Menu() {
         <div className="brand-wrap">
           <img src={logo} alt="Pepas logo" className="brand-logo" />
           <div>
-            <div className="brand-name">pepas</div>
+            <div className="brand-name">pepas coffee</div>
             <div className="brand-sub">Bowls frescos · Vida saludable</div>
           </div>
         </div>

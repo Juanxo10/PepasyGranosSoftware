@@ -874,7 +874,7 @@ export default function Index() {
         <div className="nav-brand">
           <img src={logo} alt="Pepas logo" className="nav-logo" />
           <div>
-            <div className="nav-name">Pepas</div>
+            <div className="nav-name">Pepas Coffee</div>
             <div className="nav-sub">Bowls frescos · Vida saludable</div>
           </div>
         </div>
@@ -892,7 +892,7 @@ export default function Index() {
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", marginBottom: ".4rem" }}>
           <img src={logo} alt="Pepas logo" style={{ width: "clamp(60px,10vw,100px)", height: "clamp(60px,10vw,100px)", borderRadius: "18px", objectFit: "contain" }} />
-          <h1 className="hero-title" style={{ marginBottom: 0 }}>Pepas</h1>
+          <h1 className="hero-title" style={{ marginBottom: 0 }}>Pepas Coffee</h1>
         </div>
         <p className="hero-sub-title">
           Bowls frescos,<br /><span>armados por ti.</span>
@@ -1079,10 +1079,9 @@ export default function Index() {
       {/* FOOTER */}
       <footer className="footer">
         <div className="footer-brand">
-          Pepas 
-          <small>Bowls frescos · Vida saludable</small>
+          Pepas Coffee          <small>Bowls frescos · Vida saludable</small>
         </div>
-        <span className="footer-copy">© {new Date().getFullYear()} Pepas & Granos. Todos los derechos reservados.</span>
+        <span className="footer-copy">© {new Date().getFullYear()} Pepas Coffee. Todos los derechos reservados.</span>
       </footer>
     </>
   );
