@@ -198,6 +198,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:va
 .pc.disabled .pp{color:var(--muted);}
 .caf-item.disabled{opacity:.55;background:#faf9f7;border-color:var(--border);}
 .no-stock-tag{font-size:.6rem;font-weight:700;color:#991b1b;background:#fee2e2;border-radius:999px;padding:.1rem .45rem;white-space:nowrap;}
+.mode-selector{display:flex;gap:.5rem;margin-bottom:1.5rem;background:var(--g100);border-radius:12px;padding:.3rem;border:1px solid var(--border);}
+.mode-btn{flex:1;padding:.6rem 1rem;border:none;border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s;background:transparent;color:var(--muted);}
+.mode-btn.active{background:var(--g800);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15);}
 `;
 
 export default function Menu() {
@@ -215,6 +218,7 @@ export default function Menu() {
 
   const [lechuga, setLechuga] = useState(true);
   const [vinagreta, setVinagreta] = useState(true);
+  const [mode, setMode] = useState("bowl");
 
   useEffect(() => {
     fetch(`${API_URL}/api/tienda/estado`)
@@ -331,7 +335,13 @@ export default function Menu() {
         {/* ── Left panel ── */}
         <div className="left-panel">
 
-          <span className="sec-label">Incluye siempre</span>
+          <div className="mode-selector">
+            <button className={`mode-btn${mode === "bowl" ? " active" : ""}`} onClick={() => setMode("bowl")}>🥗 Armar bowl</button>
+            <button className={`mode-btn${mode === "extras" ? " active" : ""}`} onClick={() => setMode("extras")}>🍽️ Solo adicionales</button>
+          </div>
+
+          {mode === "bowl" && <span className="sec-label">Incluye siempre</span>}
+          {mode === "bowl" && (
           <div className="always-row">
             <div className={`tag-ck${lechuga ? "" : " off"}`} onClick={() => setLechuga((v) => !v)}>
               <span className="chk">{lechuga ? "✓" : ""}</span> Lechuga
@@ -340,9 +350,10 @@ export default function Menu() {
               <span className="chk">{vinagreta ? "✓" : ""}</span> Vinagreta
             </div>
           </div>
+          )}
 
           {/* 1 · Carbohidrato */}
-          <div className="sec-card">
+          {mode === "bowl" && <div className="sec-card">
             <div className="sec-head">
               <div className="sec-num">1</div>
               <div>
@@ -362,10 +373,9 @@ export default function Menu() {
                 );
               })}
             </div>
-          </div>
+          </div>}
 
-          {/* 2 · Toppings */}
-          <div className="sec-card">
+          {mode === "bowl" && <div className="sec-card">
             <div className="sec-head">
               <div className="sec-num">2</div>
               <div>
@@ -395,10 +405,9 @@ export default function Menu() {
                 );
               })}
             </div>
-          </div>
+          </div>}
 
-          {/* 3 · Proteína */}
-          <div className="sec-card">
+          {mode === "bowl" && <div className="sec-card">
             <div className="sec-head">
               <div className="sec-num">3</div>
               <div>
@@ -420,10 +429,9 @@ export default function Menu() {
                 );
               })}
             </div>
-          </div>
+          </div>}
 
-          {/* 4 · Bebida */}
-          <div className="sec-card">
+          {mode === "bowl" && <div className="sec-card">
             <div className="sec-head">
               <div className="sec-num">4</div>
               <div>
@@ -443,7 +451,7 @@ export default function Menu() {
                 );
               })}
             </div>
-          </div>
+          </div>}
 
           {/* 5 · Productos adicionales */}
           <div className="sec-card">
@@ -497,12 +505,14 @@ export default function Menu() {
             })}
           </div>
 
+          {mode === "bowl" && (
           <div className="add-wrap">
             <button className="add-btn" onClick={addBowl}>
-              <span className="plus-ic">+</span> Agregar al pedido
+              <span className="plus-ic">+</span> Agregar bowl
               {proteins.length > 0 && <span style={{ marginLeft: ".5rem", fontSize: ".82rem", opacity: .85 }}>· {fmt(previewPrice)}</span>}
             </button>
           </div>
+          )}
         </div>
 
         {/* ── Right panel ── */}
