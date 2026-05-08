@@ -276,8 +276,10 @@ export default function Menu() {
 
   const n = bowls.length;
 
+  const hasExtras = Object.values(extraItems).some((q) => q > 0);
+
   const irAPago = () => {
-    if (!n) { alert("Agrega al menos un bowl."); return; }
+    if (!n && !hasExtras) { alert("Agrega al menos un bowl o un producto adicional."); return; }
     try { localStorage.setItem("pepas_order", JSON.stringify({ bowls, extraItems })); } catch (_) {}
     navigate("/pago");
   };
@@ -509,18 +511,20 @@ export default function Menu() {
             <div>
               <h3>Tu pedido</h3>
               <div className="sub">
-                {n} bowl{n !== 1 ? "s" : ""} agregado{n !== 1 ? "s" : ""}
+                {n > 0 && <>{n} bowl{n !== 1 ? "s" : ""}{hasExtras ? " + adicionales" : ""}</>}
+                {n === 0 && hasExtras && <>Solo productos adicionales</>}
+                {n === 0 && !hasExtras && <>Aún vacío</>}
               </div>
             </div>
             <span style={{ color: "var(--muted)", cursor: "pointer", fontSize: "1.1rem" }}>···</span>
           </div>
 
           <div className="olist">
-            {!n ? (
+            {!n && !hasExtras ? (
               <p style={{ color: "var(--muted)", fontSize: ".82rem", textAlign: "center", padding: "2rem 0" }}>
-                Aún no has agregado bowls 🥗
+                Agrega un bowl o un producto adicional 🥗
               </p>
-            ) : (
+            ) : n > 0 ? (
               <>
                 {bowls.map((b, i) => (
                   <div key={b.id} className="bc">
@@ -555,10 +559,12 @@ export default function Menu() {
           </div>
 
           <div className="rf">
-            <div className="pr">
-              <span>{n} bowl{n !== 1 ? "s" : ""}</span>
-              <span>{n ? fmt(bowlsTotal) : "—"}</span>
-            </div>
+            {n > 0 && (
+              <div className="pr">
+                <span>{n} bowl{n !== 1 ? "s" : ""}</span>
+                <span>{fmt(bowlsTotal)}</span>
+              </div>
+            )}
             {extrasTotal > 0 && (
               <div className="pr">
                 <span>Productos</span>
@@ -571,7 +577,7 @@ export default function Menu() {
             </div>
             <div className="pr tot">
               <span>Total estimado</span>
-              <span>{n ? fmt(grand) : "—"}</span>
+              <span>{(n || hasExtras) ? fmt(grand) : "—"}</span>
             </div>
             <button className="abowl-btn" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
               + Agregar bowl
