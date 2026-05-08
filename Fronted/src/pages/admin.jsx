@@ -682,7 +682,7 @@ export default function Admin() {
     setFormError("");
     setFormSaving(true);
     try {
-      const url = editingUser ? `/api/staff/${editingUser.id}` : "/api/staff";
+      const url = editingUser ? `${API_URL}/api/staff/${editingUser.id}` : `${API_URL}/api/staff`;
       const method = editingUser ? "PUT" : "POST";
       const res = await fetch(url, { method, headers: authHeaders, body: JSON.stringify(formData) });
       const data = await res.json();

@@ -238,7 +238,7 @@ async function listarPedidos() {
     extrasByPedido[e.pedido_id][e.nombre] = e.cantidad;
   }
 
-  return pedidosRes.rows.map((p) => {
+  const result = pedidosRes.rows.map((p) => {
     const bowls = (bowlsByPedido[p.id] || []).map((b) => {
       const items = itemsByBowl[b.id] || [];
       return {
@@ -339,8 +339,24 @@ async function revisarPendientesWompi() {
     return;
   }
 
+  // Cancelar automáticamente pedidos pendientes de pago con más de 24h
+  try {
+    const cancelados = await pool.query(
+      `UPDATE pedidos SET estado = 'cancelado'
+       WHERE estado = 'pendiente_pago'
+         AND creado_en < NOW() - INTERVAL '24 hours'
+       RETURNING numero_pedido`
+    );
+    if (cancelados.rowCount > 0) {
+      console.log(`Job Wompi: cancelados ${cancelados.rowCount} pedido(s) expirado(s):`, cancelados.rows.map((r) => r.numero_pedido));
+      invalidarCache();
+    }
+  } catch (e) {
+    console.error("⚠️  Job Wompi - error cancelando expirados:", e.message);
+  }
+
   if (!pendientes.length) {
-    console.log("Job Wompi: sin pendientes");
+    console.log("Job Wompi: sin pendientes recientes");
     return;
   }
 
