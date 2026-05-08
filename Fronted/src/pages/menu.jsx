@@ -336,8 +336,8 @@ export default function Menu() {
         <div className="left-panel">
 
           <div className="mode-selector">
-            <button className={`mode-btn${mode === "bowl" ? " active" : ""}`} onClick={() => setMode("bowl")}>🥗 Armar bowl</button>
-            <button className={`mode-btn${mode === "extras" ? " active" : ""}`} onClick={() => setMode("extras")}>🍽️ Solo adicionales</button>
+            <button className={`mode-btn${mode === "bowl" ? " active" : ""}`} onClick={() => setMode("bowl")}>Armar bowl</button>
+            <button className={`mode-btn${mode === "extras" ? " active" : ""}`} onClick={() => setMode("extras")}>Solo adicionales</button>
           </div>
 
           {mode === "bowl" && <span className="sec-label">Incluye siempre</span>}
