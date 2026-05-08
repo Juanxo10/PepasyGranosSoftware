@@ -543,7 +543,7 @@ export default function Menu() {
                   + Crear otro bowl
                 </button>
               </>
-            )}
+            ) : null}
             {Object.keys(extraItems).some((k) => extraItems[k] > 0) && (
               <div className="bc">
                 <span className="bn" style={{ background: "#6b21a8" }}>Adicionales</span>
