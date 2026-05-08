@@ -24,8 +24,12 @@ async function crearPedido({ bowls, extraItems, cliente, metodo_pago }) {
   if (!nombre || !telefono || !direccion || !barrio) {
     throw { status: 400, message: "Faltan datos del cliente" };
   }
-  if (!Array.isArray(bowls) || bowls.length === 0) {
-    throw { status: 400, message: "El pedido debe tener al menos un bowl" };
+  if (!Array.isArray(bowls)) {
+    throw { status: 400, message: "Formato de pedido inválido" };
+  }
+  const hasExtras = Object.values(extraItems || {}).some((q) => q > 0);
+  if (bowls.length === 0 && !hasExtras) {
+    throw { status: 400, message: "El pedido debe tener al menos un bowl o un producto adicional" };
   }
 
   const client = await pool.connect();

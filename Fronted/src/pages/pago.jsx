@@ -419,7 +419,10 @@ export default function Pago() {
         <div className="summary-card">
           <div className="summary-head">
             <span>Resumen</span>
-            <strong>{bowls.length} bowl{bowls.length !== 1 ? "s" : ""}</strong>
+            <strong>
+              {bowls.length > 0 && <>{bowls.length} bowl{bowls.length !== 1 ? "s" : ""}{Object.values(extraItems).some(q=>q>0) ? " + adicionales" : ""}</>}
+              {bowls.length === 0 && <>Solo adicionales</>}
+            </strong>
           </div>
           <div className="summary-rows">
             {bowls.map((b, i) => (
