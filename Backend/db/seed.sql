@@ -90,8 +90,9 @@ INSERT INTO productos (nombre, tipo, precio) VALUES
   ('Fruta fresca',            'extra', 14200),
   -- Bebidas
   ('Soda Hatsu',            'extra', 8000),
-  ('Colombiano',            'extra', 4900),
-  ('Capuchino',             'extra', 7200),
+  ('Colombiano',            'extra', 5900),
+  ('Acacireño',             'extra', 6600),
+  ('Capuchino',             'extra', 8200),
   -- Combos
   ('Hayaca + Chocolate',   'extra', 24000),
   ('Hayaca + Capuchino',   'extra', 24000),
