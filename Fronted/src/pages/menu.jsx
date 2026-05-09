@@ -475,15 +475,15 @@ export default function Menu() {
                 const sel = count > 0;
                 const dis = desactivados.has(name);
                 return (
-                  <label key={name} className={`pc${sel ? " sel" : ""}${dis ? " disabled" : ""}`} onClick={() => !dis && toggleProtein(name)}>
+                  <div key={name} className={`pc${sel ? " sel" : ""}${dis ? " disabled" : ""}`} onClick={() => !dis && toggleProtein(name)}>
                     {sel && !dis && (
-                      <button className="pc-remove" onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeProtein(name); }} title="Quitar">✕</button>
+                      <button className="pc-remove" onClick={(e) => { e.stopPropagation(); removeProtein(name); }} title="Quitar">✕</button>
                     )}
                     <span className="pn">{name}{count === 2 ? " ×2" : count === 3 ? " ×3" : ""}</span>
                     {dis
                       ? <span className="no-stock-tag" style={{ marginTop: ".2rem", alignSelf: "flex-start" }}>Sin stock</span>
                       : <span className="pp">{fmt(price * (count || 1))}</span>}
-                  </label>
+                  </div>
                 );
               })}
             </div>
