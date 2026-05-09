@@ -213,6 +213,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:va
 .closed-badge .cd{width:8px;height:8px;border-radius:50%;background:#991b1b;}
 @media(max-width:720px){.layout{grid-template-columns:1fr;}.rp{position:static;height:auto;border-left:none;border-top:1px solid var(--border);}.pgrid{grid-template-columns:repeat(2,1fr);}.topnav{padding:.7rem 1rem;}.brand-sub{display:none;}.brand-name{font-size:1.1rem;}.nav-right{gap:.45rem;}.home-btn{padding:.32rem .65rem;font-size:.72rem;}.bowl-badge{font-size:.7rem;padding:.25rem .7rem;}.cafgrid{grid-template-columns:1fr;}}
 .pill.disabled{opacity:.5;cursor:not-allowed;background:#f5f3ef;border-color:var(--border);color:var(--muted);}
+.pill-remove{margin-left:auto;padding-left:.4rem;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;line-height:1;opacity:.6;transition:opacity .15s;}
+.pill:hover .pill-remove{opacity:1;}
+.pc-remove{position:absolute;top:.35rem;right:.4rem;background:rgba(0,0,0,.07);border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:.7rem;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.pc-remove:hover{background:rgba(220,38,38,.15);color:#dc2626;}
+.pc{position:relative;}
 .pill.disabled .pk{background:transparent;border-color:#ccc;}
 .pc.disabled{opacity:.5;cursor:not-allowed;background:#f9f7f5;border-color:var(--border);}
 .pc.disabled .pn{color:var(--muted);}
@@ -273,9 +278,11 @@ export default function Menu() {
       if (count === 0) return [...prev, val];
       if (count === 1) return [...prev, val];
       if (count === 2) return [...prev, val];
-      return prev.filter((t) => t !== val);
+      return prev;
     });
   };
+
+  const removeTopping = (val) => setToppings((prev) => prev.filter((t) => t !== val));
 
   const toggleProtein = (name) => {
     setProteins((prev) => {
@@ -283,9 +290,11 @@ export default function Menu() {
       if (count === 0) return [...prev, name];
       if (count === 1) return [...prev, name];
       if (count === 2) return [...prev, name];
-      return prev.filter((x) => x !== name);
+      return prev;
     });
   };
+
+  const removeProtein = (name) => setProteins((prev) => prev.filter((x) => x !== name));
 
   const incExtra = (name) => setExtraItems((prev) => ({ ...prev, [name]: (prev[name] || 0) + 1 }));
   const decExtra = (name) => {
@@ -443,6 +452,9 @@ export default function Menu() {
                     {count === 2 && <span style={{ fontSize: ".6rem", fontWeight: 700, background: "var(--gold)", color: "var(--g900)", borderRadius: "999px", padding: ".1rem .4rem", marginLeft: ".2rem" }}>×2</span>}
                     {count === 3 && <span style={{ fontSize: ".6rem", fontWeight: 700, background: "#f97316", color: "#fff", borderRadius: "999px", padding: ".1rem .4rem", marginLeft: ".2rem" }}>×3</span>}
                     {dis && <span className="no-stock-tag">Sin stock</span>}
+                    {sel && !dis && (
+                      <span className="pill-remove" onClick={(e) => { e.stopPropagation(); removeTopping(t); }} title="Quitar">✕</span>
+                    )}
                   </label>
                 );
               })}
@@ -464,6 +476,9 @@ export default function Menu() {
                 const dis = desactivados.has(name);
                 return (
                   <label key={name} className={`pc${sel ? " sel" : ""}${dis ? " disabled" : ""}`} onClick={() => !dis && toggleProtein(name)}>
+                    {sel && !dis && (
+                      <button className="pc-remove" onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeProtein(name); }} title="Quitar">✕</button>
+                    )}
                     <span className="pn">{name}{count === 2 ? " ×2" : count === 3 ? " ×3" : ""}</span>
                     {dis
                       ? <span className="no-stock-tag" style={{ marginTop: ".2rem", alignSelf: "flex-start" }}>Sin stock</span>
