@@ -12,10 +12,13 @@ const CAFETERIA_NOMBRES = [
   "Montadito de huevo", "Montadito napolitano", "Montadito de carne",
   "Bowl de yogurt", "Mini bowl de yogurt", "Bowl de avena",
   "Bowl de açaí", "Cuchareable de açaí", "Fruta fresca",
-  "Soda Hatsu", "Colombiano", "Capuchino",
+  "Soda Hatsu", "Colombiano", "Acacireño", "Capuchino",
   "Hayaca + Chocolate", "Hayaca + Capuchino", "Hayaca + Aguapanela", "Hayaca + Colombiano",
   "Combo chocolate", "Combo aguapanela",
   "Croissant jamón y queso + capuchino", "Croissant arequipe + capuchino",
+  "Batido Guayuriba", "Batido Corocora", "Batido Sardinata",
+  "Frappe de café", "Frappe mocca", "Frappe arequipe", "Frappe baileys",
+  "Frappe té chai", "Caños cristales", "Caños negros", "Macarena",
 ];
 
 const CAFETERIA_PRECIOS = {
@@ -28,11 +31,20 @@ const CAFETERIA_PRECIOS = {
   "Montadito de huevo": 12500, "Montadito napolitano": 17200, "Montadito de carne": 15000,
   "Bowl de yogurt": 23000, "Mini bowl de yogurt": 16500, "Bowl de avena": 16000,
   "Bowl de açaí": 23000, "Cuchareable de açaí": 16000, "Fruta fresca": 14200,
-  "Soda Hatsu": 8000, "Colombiano": 4900, "Capuchino": 7200,
+  "Soda Hatsu": 8000, "Colombiano": 5900, "Acacireño": 6600, "Capuchino": 8200,
   "Hayaca + Chocolate": 24000, "Hayaca + Capuchino": 24000, "Hayaca + Aguapanela": 24000, "Hayaca + Colombiano": 24000,
   "Combo chocolate": 14800, "Combo aguapanela": 12500,
   "Croissant jamón y queso + capuchino": 17500, "Croissant arequipe + capuchino": 15000,
+  "Batido Guayuriba": 12500, "Batido Corocora": 12500, "Batido Sardinata": 12500,
+  "Frappe de café": 18000, "Frappe mocca": 18000, "Frappe arequipe": 18000, "Frappe baileys": 22300,
+  "Frappe té chai": 18000, "Caños cristales": 18000, "Caños negros": 18000, "Macarena": 18000,
 };
+
+const FRAPPES_NOMBRES = new Set([
+  "Frappe de café", "Frappe mocca", "Frappe arequipe", "Frappe baileys",
+  "Frappe té chai", "Caños cristales", "Caños negros", "Macarena",
+]);
+const LECHE_ALMENDRAS = 2500;
 
 const PROTEINAS_PRECIOS = {
   "Pollo": 8500, "Atún": 8500, "Carne molida": 6500,
@@ -170,6 +182,14 @@ export default function Pago() {
 
   const bowls = orderData?.bowls || [];
   const extraItems = orderData?.extraItems || {};
+  const frappesAlmond = orderData?.frappesAlmond || {};
+
+  const extrasSubtotal = CAFETERIA_NOMBRES.reduce((s, n) => {
+    const qty = extraItems[n] || 0;
+    const almondExtra = (FRAPPES_NOMBRES.has(n) && frappesAlmond[n]) ? LECHE_ALMENDRAS * qty : 0;
+    return s + (CAFETERIA_PRECIOS[n] ?? 0) * qty + almondExtra;
+  }, 0);
+  const grandTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots), 0) + extrasSubtotal + DOM;
 
   const validateDelivery = () => {
     const e = {};
@@ -232,6 +252,7 @@ export default function Pago() {
     const payload = {
       bowls,
       extraItems,
+      frappesAlmond,
       cliente: {
         nombre: fname.trim(),
         telefono: fphone.trim(),
@@ -301,6 +322,7 @@ export default function Pago() {
     const payload = {
       bowls,
       extraItems,
+      frappesAlmond,
       cliente: {
         nombre: fname.trim(),
         telefono: fphone.trim(),
@@ -348,10 +370,7 @@ export default function Pago() {
       }
 
       // Calcular total para enviar a Wompi (en centavos)
-      const total =
-        bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots), 0) +
-        CAFETERIA_NOMBRES.reduce((s, n) => s + (CAFETERIA_PRECIOS[n] ?? 0) * (extraItems[n] || 0), 0) +
-        DOM;
+      const total = grandTotal;
       const amountInCents = total * 100;
 
       // Usar numero_pedido como referencia única
@@ -431,19 +450,23 @@ export default function Pago() {
                 <span className="sv">{fmt(calcBowlPrice(b.tops, b.prots))}</span>
               </div>
             ))}
-            {CAFETERIA_NOMBRES.filter((nombre) => (extraItems[nombre] || 0) > 0).map((nombre) => (
-              <div key={nombre} className="srow">
-                <span className="sl">{nombre} ×{extraItems[nombre]}</span>
-                <span className="sv">{fmt((CAFETERIA_PRECIOS[nombre] ?? 0) * extraItems[nombre])}</span>
-              </div>
-            ))}
+            {CAFETERIA_NOMBRES.filter((nombre) => (extraItems[nombre] || 0) > 0).map((nombre) => {
+              const qty = extraItems[nombre];
+              const almondExtra = (FRAPPES_NOMBRES.has(nombre) && frappesAlmond[nombre]) ? LECHE_ALMENDRAS * qty : 0;
+              return (
+                <div key={nombre} className="srow">
+                  <span className="sl">{nombre} ×{qty}{FRAPPES_NOMBRES.has(nombre) && frappesAlmond[nombre] ? " · leche almendras" : ""}</span>
+                  <span className="sv">{fmt((CAFETERIA_PRECIOS[nombre] ?? 0) * qty + almondExtra)}</span>
+                </div>
+              );
+            })}
             <div className="srow">
               <span className="sl">Domicilio</span>
               <span className="sv">{fmt(DOM)}</span>
             </div>
             <div className="srow stot">
               <span className="sl">Total estimado</span>
-              <span className="sv">{fmt(bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots), 0) + CAFETERIA_NOMBRES.reduce((s, n) => s + (CAFETERIA_PRECIOS[n] ?? 0) * (extraItems[n] || 0), 0) + DOM)}</span>
+              <span className="sv">{fmt(grandTotal)}</span>
             </div>
           </div>
         </div>

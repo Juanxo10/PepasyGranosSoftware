@@ -26,6 +26,11 @@ const BEBIDAS = ["Limonada", "Agua y limón"];
 const BOWL_BASE = 12000;
 const TOPPING_EXTRA = 3000;
 const DOM = 6000;
+const LECHE_ALMENDRAS = 2500;
+const FRAPPES_NAMES = new Set([
+  "Frappe de café", "Frappe mocca", "Frappe arequipe", "Frappe baileys",
+  "Frappe té chai", "Caños cristales", "Caños negros", "Macarena",
+]);
 
 const calcBowlPrice = (tops, prots) => {
   const toppingsCost = Math.max(0, tops.length - 4) * TOPPING_EXTRA;
@@ -231,6 +236,7 @@ export default function Menu() {
   const [bev, setBev] = useState("");
   const [extraItems, setExtraItems] = useState({});
   const [openCats, setOpenCats] = useState({});
+  const [frappesAlmond, setFrappesAlmond] = useState({});
 
   const [lechuga, setLechuga] = useState(true);
   const [vinagreta, setVinagreta] = useState(true);
@@ -254,7 +260,11 @@ export default function Menu() {
 
   // Totales visuales
   const bowlsTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots), 0);
-  const extrasTotal = ALL_EXTRAS.reduce((s, { name, price }) => s + (extraItems[name] || 0) * price, 0);
+  const extrasTotal = ALL_EXTRAS.reduce((s, { name, price }) => {
+    const qty = extraItems[name] || 0;
+    const almondCost = (FRAPPES_NAMES.has(name) && frappesAlmond[name]) ? LECHE_ALMENDRAS * qty : 0;
+    return s + qty * price + almondCost;
+  }, 0);
   const grand = bowlsTotal + extrasTotal + DOM;
 
   const toggleTopping = (val) => {
@@ -270,11 +280,16 @@ export default function Menu() {
   };
 
   const incExtra = (name) => setExtraItems((prev) => ({ ...prev, [name]: (prev[name] || 0) + 1 }));
-  const decExtra = (name) => setExtraItems((prev) => {
-    const q = (prev[name] || 0) - 1;
-    if (q <= 0) { const n = { ...prev }; delete n[name]; return n; }
-    return { ...prev, [name]: q };
-  });
+  const decExtra = (name) => {
+    setExtraItems((prev) => {
+      const q = (prev[name] || 0) - 1;
+      if (q <= 0) {
+        if (FRAPPES_NAMES.has(name)) setFrappesAlmond(fa => { const n = { ...fa }; delete n[name]; return n; });
+        const n = { ...prev }; delete n[name]; return n;
+      }
+      return { ...prev, [name]: q };
+    });
+  };
 
   const addBowl = () => {
     if (!carb) { alert("Elige un carbohidrato."); return; }
@@ -300,7 +315,7 @@ export default function Menu() {
 
   const irAPago = () => {
     if (!n && !hasExtras) { alert("Agrega al menos un bowl o un producto adicional."); return; }
-    try { localStorage.setItem("pepas_order", JSON.stringify({ bowls, extraItems })); } catch (_) {}
+    try { localStorage.setItem("pepas_order", JSON.stringify({ bowls, extraItems, frappesAlmond })); } catch (_) {}
     navigate("/pago");
   };
 
@@ -508,12 +523,23 @@ export default function Menu() {
                               {dis
                                 ? <span className="no-stock-tag" style={{ alignSelf: "flex-start" }}>Sin stock</span>
                                 : <>
-                                    <span className="caf-price">{fmt(price)}</span>
+                                    <span className="caf-price">{fmt(price)}{FRAPPES_NAMES.has(name) && frappesAlmond[name] ? " +$2.500" : ""}</span>
                                     <div className="qt-row">
                                       <button className="qt-btn" onClick={() => decExtra(name)}>−</button>
                                       <span className="qt-val">{qty}</span>
                                       <button className="qt-btn" onClick={() => incExtra(name)}>+</button>
                                     </div>
+                                    {FRAPPES_NAMES.has(name) && qty > 0 && (
+                                      <label
+                                        style={{ display: "flex", alignItems: "center", gap: ".35rem", cursor: "pointer", marginTop: ".4rem", fontSize: ".7rem", fontWeight: 600, color: "#6b21a8", userSelect: "none" }}
+                                        onClick={(e) => { e.stopPropagation(); setFrappesAlmond(prev => ({ ...prev, [name]: !prev[name] })); }}
+                                      >
+                                        <span style={{ width: "14px", height: "14px", borderRadius: "3px", border: "1.5px solid #6b21a8", display: "flex", alignItems: "center", justifyContent: "center", background: frappesAlmond[name] ? "#6b21a8" : "transparent", color: "#fff", fontSize: ".6rem", flexShrink: 0 }}>
+                                          {frappesAlmond[name] ? "✓" : ""}
+                                        </span>
+                                        Leche almendras +$2.500
+                                      </label>
+                                    )}
                                   </>}
                             </div>
                           );
@@ -581,7 +607,7 @@ export default function Menu() {
                 <div className="bcarb" style={{ marginTop: ".3rem" }}>Productos adicionales</div>
                 <div className="btags">
                   {ALL_EXTRAS.filter(({ name }) => (extraItems[name] || 0) > 0).map(({ name }) => (
-                    <span key={name} className="bt caf">{name} ×{extraItems[name]}</span>
+                    <span key={name} className="bt caf">{name} ×{extraItems[name]}{FRAPPES_NAMES.has(name) && frappesAlmond[name] ? " · almendras" : ""}</span>
                   ))}
                 </div>
                 <div className="bprice">{fmt(extrasTotal)}</div>
