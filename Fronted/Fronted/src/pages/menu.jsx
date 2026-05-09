@@ -268,21 +268,15 @@ export default function Menu() {
   const grand = bowlsTotal + extrasTotal + DOM;
 
   const toggleTopping = (val) => {
-    setToppings((prev) => {
-      const count = prev.filter((t) => t === val).length;
-      if (count === 0) return [...prev, val];
-      if (count === 1) return [...prev, val];
-      return prev.filter((t) => t !== val);
-    });
+    setToppings((prev) =>
+      prev.includes(val) ? prev.filter((t) => t !== val) : [...prev, val]
+    );
   };
 
   const toggleProtein = (name) => {
-    setProteins((prev) => {
-      const count = prev.filter((x) => x === name).length;
-      if (count === 0) return [...prev, name];
-      if (count === 1) return [...prev, name];
-      return prev.filter((x) => x !== name);
-    });
+    setProteins((prev) =>
+      prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name]
+    );
   };
 
   const incExtra = (name) => setExtraItems((prev) => ({ ...prev, [name]: (prev[name] || 0) + 1 }));
@@ -422,13 +416,12 @@ export default function Menu() {
                     {toppings.length} {toppings.length > 4 ? `(+${toppings.length - 4} extra)` : "/4"}
                   </span>
                 </div>
-                <div className="sec-hint">4 incluidos · extras $3.000 · toca 2 veces para doble</div>
+                <div className="sec-hint">4 incluidos · extras $3.000 c/u</div>
               </div>
             </div>
             <div className="pill-grid">
               {TOPPINGS.map((t) => {
-                const count = toppings.filter((x) => x === t).length;
-                const sel = count > 0;
+                const sel = toppings.includes(t);
                 const dis = desactivados.has(t);
                 return (
                   <label
@@ -436,9 +429,8 @@ export default function Menu() {
                     className={`pill${sel ? " sel" : ""}${dis ? " disabled" : ""}`}
                     onClick={() => !dis && toggleTopping(t)}
                   >
-                    <span className="pk">{count === 2 ? "2" : (sel ? "✓" : "")}</span>
+                    <span className="pk">{sel ? "✓" : ""}</span>
                     <span>{t}</span>
-                    {count === 2 && <span style={{ fontSize: ".6rem", fontWeight: 700, background: "var(--gold)", color: "var(--g900)", borderRadius: "999px", padding: ".1rem .4rem", marginLeft: ".2rem" }}>×2</span>}
                     {dis && <span className="no-stock-tag">Sin stock</span>}
                   </label>
                 );
@@ -451,20 +443,19 @@ export default function Menu() {
               <div className="sec-num">3</div>
               <div>
                 <div className="sec-title">Proteina</div>
-                <div className="sec-hint">Una o mas · toca 2 veces para doble porción</div>
+                <div className="sec-hint">Una o mas opciones</div>
               </div>
             </div>
             <div className="pgrid">
               {PROTEINAS.map(({ name, price }) => {
-                const count = proteins.filter((x) => x === name).length;
-                const sel = count > 0;
+                const sel = proteins.includes(name);
                 const dis = desactivados.has(name);
                 return (
                   <label key={name} className={`pc${sel ? " sel" : ""}${dis ? " disabled" : ""}`} onClick={() => !dis && toggleProtein(name)}>
-                    <span className="pn">{name}{count === 2 ? " ×2" : ""}</span>
+                    <span className="pn">{name}</span>
                     {dis
                       ? <span className="no-stock-tag" style={{ marginTop: ".2rem", alignSelf: "flex-start" }}>Sin stock</span>
-                      : <span className="pp">{fmt(price * (count || 1))}</span>}
+                      : <span className="pp">{fmt(price)}</span>}
                   </label>
                 );
               })}
@@ -598,8 +589,8 @@ export default function Menu() {
                     <button className="bclose" onClick={() => removeBowl(b.id)}>✕</button>
                     <div className="bcarb">{b.carb}</div>
                     <div className="btags">
-                      {(() => { const m = {}; b.tops.forEach(t => m[t] = (m[t]||0)+1); return Object.entries(m).map(([t,c]) => <span key={t} className="bt">{t}{c>1?" ×2":""}</span>); })()}
-                      {(() => { const m = {}; b.prots.forEach(p => m[p] = (m[p]||0)+1); return Object.entries(m).map(([p,c]) => <span key={p} className="bt p">{p}{c>1?" ×2":""}</span>); })()}
+                      {b.tops.map((t) => <span key={t} className="bt">{t}</span>)}
+                      {b.prots.map((p) => <span key={p} className="bt p">{p}</span>)}
                       {b.bev && <span className="bt b">{b.bev}</span>}
                     </div>
                     <div className="bprice">{fmt(calcBowlPrice(b.tops, b.prots))}</div>
