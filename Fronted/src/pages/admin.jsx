@@ -717,10 +717,16 @@ export default function Admin() {
     setOrders((prev) => prev.filter((o) => o.id !== id));
   };
 
+  const groupItems = (arr) => {
+    const counts = {};
+    arr.forEach((x) => { counts[x] = (counts[x] || 0) + 1; });
+    return Object.entries(counts).map(([name, count]) => ({ name, count }));
+  };
+
   const sendWA = (o, tipo) => {
     const lines = o.bowls
       .map((b, i) =>
-        `Bowl ${i + 1}: ${b.base}${(b.incluidos || []).length ? " | Incluye: " + b.incluidos.join(", ") : ""} | Toppings: ${b.toppings.join(", ")} | Proteína: ${b.proteinas.join(", ")}${b.bebida ? " | Bebida: " + b.bebida : ""}`
+        `Bowl ${i + 1}: ${b.base}${(b.incluidos || []).length ? " | Incluye: " + b.incluidos.join(", ") : ""} | Toppings: ${groupItems(b.toppings).map(({name,count}) => count > 1 ? `${name} x${count}` : name).join(", ")} | Proteína: ${groupItems(b.proteinas).map(({name,count}) => count > 1 ? `${name} x${count}` : name).join(", ")}${b.bebida ? " | Bebida: " + b.bebida : ""}`
       )
       .join("\n");
     const msg = tipo === "entregado"
@@ -897,8 +903,8 @@ export default function Admin() {
                           <div className="bowl-item-title">Bowl {i + 1} · {b.base}</div>
                           <div className="bowl-tags">
                             {(b.incluidos || []).map((inc) => <span key={inc} className="btag inc">{inc}</span>)}
-                            {b.toppings.map((t) => <span key={t} className="btag topping">{t}</span>)}
-                            {b.proteinas.map((p) => <span key={p} className="btag prot">{p}</span>)}
+                            {groupItems(b.toppings).map(({name,count}) => <span key={name} className="btag topping">{count > 1 ? `${name} x${count}` : name}</span>)}
+                            {groupItems(b.proteinas).map(({name,count}) => <span key={name} className="btag prot">{count > 1 ? `${name} x${count}` : name}</span>)}
                             {b.bebida && <span className="btag bev">{b.bebida}</span>}
                           </div>
                         </div>
@@ -1022,8 +1028,8 @@ export default function Admin() {
                               <div className="bowl-item-title">Bowl {i + 1} · {b.base}</div>
                               <div className="bowl-tags">
                                 {(b.incluidos || []).map((inc) => <span key={inc} className="btag inc">{inc}</span>)}
-                                {b.toppings.map((t) => <span key={t} className="btag topping">{t}</span>)}
-                                {b.proteinas.map((p) => <span key={p} className="btag prot">{p}</span>)}
+                                {groupItems(b.toppings).map(({name,count}) => <span key={name} className="btag topping">{count > 1 ? `${name} x${count}` : name}</span>)}
+                                {groupItems(b.proteinas).map(({name,count}) => <span key={name} className="btag prot">{count > 1 ? `${name} x${count}` : name}</span>)}
                                 {b.bebida && <span className="btag bev">{b.bebida}</span>}
                               </div>
                             </div>
