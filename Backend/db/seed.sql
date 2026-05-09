@@ -93,6 +93,19 @@ INSERT INTO productos (nombre, tipo, precio) VALUES
   ('Colombiano',            'extra', 5900),
   ('Acacireño',             'extra', 6600),
   ('Capuchino',             'extra', 8200),
+  -- Batidos
+  ('Batido Guayuriba',      'extra', 12500),
+  ('Batido Corocora',       'extra', 12500),
+  ('Batido Sardinata',      'extra', 12500),
+  -- Frappes
+  ('Frappe de café',        'extra', 18000),
+  ('Frappe mocca',          'extra', 18000),
+  ('Frappe arequipe',       'extra', 18000),
+  ('Frappe baileys',        'extra', 22300),
+  ('Frappe té chai',        'extra', 18000),
+  ('Caños cristales',       'extra', 18000),
+  ('Caños negros',          'extra', 18000),
+  ('Macarena',              'extra', 18000),
   -- Combos
   ('Hayaca + Chocolate',   'extra', 24000),
   ('Hayaca + Capuchino',   'extra', 24000),

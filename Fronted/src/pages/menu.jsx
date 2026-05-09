@@ -82,6 +82,21 @@ const CAFETERIA = [
     { name: "Acacireño", price: 6600, desc: "" },
     { name: "Capuchino", price: 8200, desc: "Café y leche deslactosada" },
   ]},
+  { cat: "Batidos", items: [
+    { name: "Batido Guayuriba", price: 12500, desc: "Frutos amarillos: Mango, maracuyá, piña y naranja" },
+    { name: "Batido Corocora", price: 12500, desc: "Frutos rojos: Fresa, zanahoria, papaya y uchuva" },
+    { name: "Batido Sardinata", price: 12500, desc: "Frutos verdes: Apio, espinaca, pepino, manzana verde" },
+  ]},
+  { cat: "Frappes", note: "Si deseas tu frappe en leche de almendras tiene un costo adicional de $2.500", items: [
+    { name: "Frappe de café", price: 18000, desc: "Café, leche en polvo y eritritol" },
+    { name: "Frappe mocca", price: 18000, desc: "Café, chocolate, leche en polvo y eritritol" },
+    { name: "Frappe arequipe", price: 18000, desc: "Café, arequipe, leche en polvo y eritritol" },
+    { name: "Frappe baileys", price: 22300, desc: "Café, licor baileys, leche en polvo y eritritol" },
+    { name: "Frappe té chai", price: 18000, desc: "Té chai, leche en polvo y eritritol" },
+    { name: "Caños cristales", price: 18000, desc: "Té flor azul, leche en polvo, vainilla y eritritol" },
+    { name: "Caños negros", price: 18000, desc: "Carbón activado, limón, naranja y hierbabuena" },
+    { name: "Macarena", price: 18000, desc: "Té rosado con proteínas, leche en polvo y eritritol" },
+  ]},
   { cat: "Combos", items: [
     { name: "Hayaca + Chocolate", price: 24000 },
     { name: "Hayaca + Capuchino", price: 24000 },
@@ -463,7 +478,7 @@ export default function Menu() {
                 <div className="sec-hint">Opcional · Toca una categoría para desplegar</div>
               </div>
             </div>
-            {CAFETERIA.map(({ cat, items }) => {
+            {CAFETERIA.map(({ cat, items, note }) => {
               const open = !!openCats[cat];
               const catQty = items.reduce((s, it) => s + (extraItems[it.name] || 0), 0);
               return (
@@ -477,6 +492,11 @@ export default function Menu() {
                   </div>
                   {open && (
                     <div className="acc-body">
+                      {note && (
+                        <div style={{ background: "#fdf0ff", border: "1.5px solid #d8b4fe", borderRadius: "8px", padding: ".5rem .75rem", marginBottom: ".6rem", fontSize: ".75rem", color: "#6b21a8", fontWeight: 600 }}>
+                          ⚠️ {note}
+                        </div>
+                      )}
                       <div className="cafgrid">
                         {items.map(({ name, price, desc }) => {
                           const qty = extraItems[name] || 0;
