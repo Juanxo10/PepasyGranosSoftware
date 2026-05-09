@@ -272,6 +272,7 @@ export default function Menu() {
       const count = prev.filter((t) => t === val).length;
       if (count === 0) return [...prev, val];
       if (count === 1) return [...prev, val];
+      if (count === 2) return [...prev, val];
       return prev.filter((t) => t !== val);
     });
   };
@@ -281,6 +282,7 @@ export default function Menu() {
       const count = prev.filter((x) => x === name).length;
       if (count === 0) return [...prev, name];
       if (count === 1) return [...prev, name];
+      if (count === 2) return [...prev, name];
       return prev.filter((x) => x !== name);
     });
   };
@@ -422,7 +424,7 @@ export default function Menu() {
                     {toppings.length} {toppings.length > 4 ? `(+${toppings.length - 4} extra)` : "/4"}
                   </span>
                 </div>
-                <div className="sec-hint">4 incluidos · extras $3.000 · toca 2 veces para doble</div>
+                <div className="sec-hint">4 incluidos · extras $3.000 · toca 2 o 3 veces para doble o triple</div>
               </div>
             </div>
             <div className="pill-grid">
@@ -436,9 +438,10 @@ export default function Menu() {
                     className={`pill${sel ? " sel" : ""}${dis ? " disabled" : ""}`}
                     onClick={() => !dis && toggleTopping(t)}
                   >
-                    <span className="pk">{count === 2 ? "2" : (sel ? "✓" : "")}</span>
+                    <span className="pk">{count >= 2 ? count : (sel ? "✓" : "")}</span>
                     <span>{t}</span>
                     {count === 2 && <span style={{ fontSize: ".6rem", fontWeight: 700, background: "var(--gold)", color: "var(--g900)", borderRadius: "999px", padding: ".1rem .4rem", marginLeft: ".2rem" }}>×2</span>}
+                    {count === 3 && <span style={{ fontSize: ".6rem", fontWeight: 700, background: "#f97316", color: "#fff", borderRadius: "999px", padding: ".1rem .4rem", marginLeft: ".2rem" }}>×3</span>}
                     {dis && <span className="no-stock-tag">Sin stock</span>}
                   </label>
                 );
@@ -451,7 +454,7 @@ export default function Menu() {
               <div className="sec-num">3</div>
               <div>
                 <div className="sec-title">Proteina</div>
-                <div className="sec-hint">Una o mas · toca 2 veces para doble porción</div>
+                <div className="sec-hint">Una o más · toca 2 o 3 veces para doble o triple porción</div>
               </div>
             </div>
             <div className="pgrid">
@@ -461,7 +464,7 @@ export default function Menu() {
                 const dis = desactivados.has(name);
                 return (
                   <label key={name} className={`pc${sel ? " sel" : ""}${dis ? " disabled" : ""}`} onClick={() => !dis && toggleProtein(name)}>
-                    <span className="pn">{name}{count === 2 ? " ×2" : ""}</span>
+                    <span className="pn">{name}{count === 2 ? " ×2" : count === 3 ? " ×3" : ""}</span>
                     {dis
                       ? <span className="no-stock-tag" style={{ marginTop: ".2rem", alignSelf: "flex-start" }}>Sin stock</span>
                       : <span className="pp">{fmt(price * (count || 1))}</span>}
