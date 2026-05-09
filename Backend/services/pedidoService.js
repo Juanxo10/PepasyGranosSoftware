@@ -46,6 +46,7 @@ async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_p
     const BOWL_BASE       = conf.bowl_base         ?? conf.precio_base_bowl        ?? 12000;
     const TOPPINGS_GRATIS = conf.toppings_gratis   ?? conf.toppings_incluidos      ?? 4;
     const TOPPING_EXTRA   = conf.topping_extra      ?? conf.precio_topping_extra   ?? 3000;
+    const LECHE_ALMENDRAS_PRECIO = conf.leche_almendras ?? 2500;
 
     // Recopilar todos los nombres de productos necesarios
     const allNames = new Set();
@@ -127,8 +128,7 @@ async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_p
       extrasData.push({ productoId: prod.id, cantidad: qty });
     }
 
-    // Leche de almendras para frappes (+$2.500 por unidad)
-    const LECHE_ALMENDRAS_PRECIO = 2500;
+    // Leche de almendras para frappes (precio desde configuracion)
     const FRAPPES_SET = new Set([
       "Frappe de café", "Frappe mocca", "Frappe arequipe", "Frappe baileys",
       "Frappe té chai", "Caños cristales", "Caños negros", "Macarena",
