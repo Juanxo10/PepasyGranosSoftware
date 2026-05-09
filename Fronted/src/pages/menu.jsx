@@ -78,8 +78,9 @@ const CAFETERIA = [
   ]},
   { cat: "Bebidas", items: [
     { name: "Soda Hatsu", price: 8000, desc: "Frambuesa, limón-hierbabuena, sandía, uva blanca" },
-    { name: "Colombiano", price: 4900, desc: "Café tipo americano" },
-    { name: "Capuchino", price: 7200, desc: "Café y leche deslactosada" },
+    { name: "Colombiano", price: 5900, desc: "Café tipo americano" },
+    { name: "Acacireño", price: 6600, desc: "" },
+    { name: "Capuchino", price: 8200, desc: "Café y leche deslactosada" },
   ]},
   { cat: "Combos", items: [
     { name: "Hayaca + Chocolate", price: 24000 },
