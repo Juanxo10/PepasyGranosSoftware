@@ -47,6 +47,8 @@ async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_p
     const TOPPINGS_GRATIS = conf.toppings_gratis   ?? conf.toppings_incluidos      ?? 4;
     const TOPPING_EXTRA   = conf.topping_extra      ?? conf.precio_topping_extra   ?? 3000;
     const LECHE_ALMENDRAS_PRECIO = conf.leche_almendras ?? 2500;
+    const CAJA            = conf.caja              ?? 1000;
+    const VASO            = conf.vaso              ?? 1000;
 
     // Recopilar todos los nombres de productos necesarios
     const allNames = new Set();
@@ -106,16 +108,22 @@ async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_p
         const prod = prodMap[bowl.bev];
         if (!prod) throw { status: 400, message: `Producto no encontrado: ${bowl.bev}` };
         bowlPrice += prod.precio;
+        bowlPrice += VASO; // cargo por vaso
         bebidaId = prod.id;
       }
+
+      // Cargo por caja (siempre en bowl)
+      bowlPrice += CAJA;
 
       // Incluidos (precio 0 pero se registran)
       const incluidoIds = [];
       if (bowl.lechuga && prodMap["Lechuga"]) incluidoIds.push(prodMap["Lechuga"].id);
       if (bowl.vinagreta && prodMap["Vinagreta"]) incluidoIds.push(prodMap["Vinagreta"].id);
 
+      const cajaCargo = CAJA;
+      const vasoCargo = bowl.bev ? VASO : 0;
       subtotal += bowlPrice;
-      bowlsData.push({ baseId: base.id, bebidaId, toppingIds, proteinIds, incluidoIds });
+      bowlsData.push({ baseId: base.id, bebidaId, toppingIds, proteinIds, incluidoIds, caja: cajaCargo, vaso: vasoCargo });
     }
 
     // Calcular extras
@@ -168,8 +176,8 @@ async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_p
     // Insertar bowls + items
     for (const bd of bowlsData) {
       const bowlRes = await client.query(
-        "INSERT INTO bowls (pedido_id, base_id, bebida_id) VALUES ($1,$2,$3) RETURNING id",
-        [pedidoId, bd.baseId, bd.bebidaId]
+        "INSERT INTO bowls (pedido_id, base_id, bebida_id, caja, vaso) VALUES ($1,$2,$3,$4,$5) RETURNING id",
+        [pedidoId, bd.baseId, bd.bebidaId, bd.caja, bd.vaso]
       );
       const bowlId = bowlRes.rows[0].id;
 
@@ -214,7 +222,7 @@ async function listarPedidos() {
   // 3 queries en paralelo para bowls, bowl_items y extras de todos los pedidos
   const [bowlsRes, itemsRes, extrasRes] = await Promise.all([
     pool.query(
-      `SELECT b.id, b.pedido_id, base.nombre AS base, beb.nombre AS bebida
+      `SELECT b.id, b.pedido_id, b.caja, b.vaso, base.nombre AS base, beb.nombre AS bebida
        FROM bowls b
        LEFT JOIN productos base ON b.base_id = base.id
        LEFT JOIN productos beb  ON b.bebida_id = beb.id
@@ -243,7 +251,7 @@ async function listarPedidos() {
   const bowlsByPedido = {};
   for (const b of bowlsRes.rows) {
     if (!bowlsByPedido[b.pedido_id]) bowlsByPedido[b.pedido_id] = [];
-    bowlsByPedido[b.pedido_id].push({ id: b.id, base: b.base, bebida: b.bebida });
+    bowlsByPedido[b.pedido_id].push({ id: b.id, base: b.base, bebida: b.bebida, caja: b.caja, vaso: b.vaso });
   }
 
   // Indexar items por bowl_id
@@ -266,6 +274,8 @@ async function listarPedidos() {
       return {
         base: b.base,
         bebida: b.bebida,
+        caja: b.caja ?? 0,
+        vaso: b.vaso ?? 0,
         toppings:  items.filter((i) => i.tipo === "topping").map((i) => i.nombre),
         proteinas: items.filter((i) => i.tipo === "proteina").map((i) => i.nombre),
         incluidos: items.filter((i) => i.tipo === "incluido").map((i) => i.nombre),

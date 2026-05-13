@@ -54,12 +54,14 @@ const PROTEINAS_PRECIOS = {
 const BOWL_BASE = 12000;
 const TOPPING_EXTRA = 3000;
 const TOPPINGS_GRATIS = 4;
+const CAJA = 1000;
+const VASO = 1000;
 const DOM = 6000;
 
-const calcBowlPrice = (tops = [], prots = []) => {
+const calcBowlPrice = (tops = [], prots = [], bev = null) => {
   const toppingsCost = Math.max(0, tops.length - TOPPINGS_GRATIS) * TOPPING_EXTRA;
   const protsCost = prots.reduce((s, p) => s + (PROTEINAS_PRECIOS[typeof p === "string" ? p : p?.name] ?? 0), 0);
-  return BOWL_BASE + toppingsCost + protsCost;
+  return BOWL_BASE + toppingsCost + protsCost + CAJA + (bev ? VASO : 0);
 };
 
 const fmt = (n) => "$" + Number(n).toLocaleString("es-CO");
@@ -189,7 +191,7 @@ export default function Pago() {
     const almondExtra = (FRAPPES_NOMBRES.has(n) && frappesAlmond[n]) ? LECHE_ALMENDRAS * qty : 0;
     return s + (CAFETERIA_PRECIOS[n] ?? 0) * qty + almondExtra;
   }, 0);
-  const grandTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots), 0) + extrasSubtotal + DOM;
+  const grandTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots, b.bev), 0) + extrasSubtotal + DOM;
 
   const validateDelivery = () => {
     const e = {};
@@ -445,9 +447,21 @@ export default function Pago() {
           </div>
           <div className="summary-rows">
             {bowls.map((b, i) => (
-              <div key={i} className="srow">
-                <span className="sl">Bowl {i + 1} · {b.carb} · {b.prots.map(protName).join(", ")}{b.bev ? " · " + b.bev : ""}</span>
-                <span className="sv">{fmt(calcBowlPrice(b.tops, b.prots))}</span>
+              <div key={i} style={{ marginBottom: ".4rem" }}>
+                <div className="srow">
+                  <span className="sl">Bowl {i + 1} · {b.carb} · {b.prots.map(protName).join(", ")}{b.bev ? " · " + b.bev : ""}</span>
+                  <span className="sv">{fmt(calcBowlPrice(b.tops, b.prots, b.bev))}</span>
+                </div>
+                <div className="srow" style={{ opacity: .7, fontSize: ".75rem", paddingLeft: ".5rem" }}>
+                  <span className="sl">📦 Caja</span>
+                  <span className="sv">+{fmt(CAJA)}</span>
+                </div>
+                {b.bev && (
+                  <div className="srow" style={{ opacity: .7, fontSize: ".75rem", paddingLeft: ".5rem" }}>
+                    <span className="sl">🥤 Vaso</span>
+                    <span className="sv">+{fmt(VASO)}</span>
+                  </div>
+                )}
               </div>
             ))}
             {CAFETERIA_NOMBRES.filter((nombre) => (extraItems[nombre] || 0) > 0).map((nombre) => {

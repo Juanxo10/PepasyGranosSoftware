@@ -25,6 +25,8 @@ const BEBIDAS = ["Limonada", "Agua y limón"];
 
 const BOWL_BASE = 12000;
 const TOPPING_EXTRA = 3000;
+const CAJA = 1000;
+const VASO = 1000;
 const DOM = 6000;
 const LECHE_ALMENDRAS = 2500;
 const FRAPPES_NAMES = new Set([
@@ -32,13 +34,13 @@ const FRAPPES_NAMES = new Set([
   "Frappe té chai", "Caños cristales", "Caños negros", "Macarena",
 ]);
 
-const calcBowlPrice = (tops, prots) => {
+const calcBowlPrice = (tops, prots, bev) => {
   const toppingsCost = Math.max(0, tops.length - 4) * TOPPING_EXTRA;
   const protsCost = prots.reduce((s, name) => {
     const p = PROTEINAS.find((x) => x.name === name);
     return s + (p?.price ?? 0);
   }, 0);
-  return BOWL_BASE + toppingsCost + protsCost;
+  return BOWL_BASE + toppingsCost + protsCost + CAJA + (bev ? VASO : 0);
 };
 
 const CAFETERIA = [
@@ -261,10 +263,10 @@ export default function Menu() {
   const toggleCat = (cat) => setOpenCats(prev => ({ ...prev, [cat]: !prev[cat] }));
 
   // Precio visual del bowl en construcción
-  const previewPrice = calcBowlPrice(toppings, proteins);
+  const previewPrice = calcBowlPrice(toppings, proteins, bev);
 
   // Totales visuales
-  const bowlsTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots), 0);
+  const bowlsTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots, b.bev), 0);
   const extrasTotal = ALL_EXTRAS.reduce((s, { name, price }) => {
     const qty = extraItems[name] || 0;
     const almondCost = (FRAPPES_NAMES.has(name) && frappesAlmond[name]) ? LECHE_ALMENDRAS * qty : 0;
@@ -494,7 +496,7 @@ export default function Menu() {
               <div className="sec-num">4</div>
               <div>
                 <div className="sec-title">Bebida</div>
-                <div className="sec-hint">Opcional</div>
+                <div className="sec-hint">Opcional · +$1.000 por vaso</div>
               </div>
             </div>
             <div className="pill-grid">
@@ -620,7 +622,8 @@ export default function Menu() {
                       {(() => { const m = {}; b.prots.forEach(p => m[p] = (m[p]||0)+1); return Object.entries(m).map(([p,c]) => <span key={p} className="bt p">{p}{c>1?" ×2":""}</span>); })()}
                       {b.bev && <span className="bt b">{b.bev}</span>}
                     </div>
-                    <div className="bprice">{fmt(calcBowlPrice(b.tops, b.prots))}</div>
+                    <div style={{ fontSize: ".7rem", color: "var(--muted)", marginBottom: ".3rem" }}>📦 Caja +$1.000{b.bev ? " · 🥤 Vaso +$1.000" : ""}</div>
+                    <div className="bprice">{fmt(calcBowlPrice(b.tops, b.prots, b.bev))}</div>
                   </div>
                 ))}
                 <button className="cbtn" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
