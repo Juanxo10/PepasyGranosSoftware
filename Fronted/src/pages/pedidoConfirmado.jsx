@@ -137,7 +137,7 @@ export default function PedidoConfirmado() {
                     {" · "}
                     {bowl.vinagreta ? "Incluye vinagreta" : "Sin vinagreta"}
                     {" · "}
-                    📦 Caja +$1.000{bowl.bev ? " · 🥤 Vaso +$1.000" : ""}
+                    Caja +$1.000{bowl.bev ? " · Vaso +$1.000" : ""}
                   </div>
                 </article>
               ))}

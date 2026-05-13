@@ -906,8 +906,8 @@ export default function Admin() {
                             {groupItems(b.toppings).map(({name,count}) => <span key={name} className="btag topping">{count > 1 ? `${name} x${count}` : name}</span>)}
                             {groupItems(b.proteinas).map(({name,count}) => <span key={name} className="btag prot">{count > 1 ? `${name} x${count}` : name}</span>)}
                             {b.bebida && <span className="btag bev">{b.bebida}</span>}
-                            {b.caja > 0 && <span className="btag" style={{background:"#fef9ec",color:"#92400e",border:"1px solid #f5d88a"}}>📦 Caja +{fmt(b.caja)}</span>}
-                            {b.vaso > 0 && <span className="btag" style={{background:"#eff6ff",color:"#1e40af",border:"1px solid #bfdbfe"}}>🥤 Vaso +{fmt(b.vaso)}</span>}
+                            {b.caja > 0 && <span className="btag" style={{background:"#fef9ec",color:"#92400e",border:"1px solid #f5d88a"}}>Caja +{fmt(b.caja)}</span>}
+                            {b.vaso > 0 && <span className="btag" style={{background:"#eff6ff",color:"#1e40af",border:"1px solid #bfdbfe"}}>Vaso +{fmt(b.vaso)}</span>}
                           </div>
                         </div>
                       ))}
@@ -1033,8 +1033,8 @@ export default function Admin() {
                                 {groupItems(b.toppings).map(({name,count}) => <span key={name} className="btag topping">{count > 1 ? `${name} x${count}` : name}</span>)}
                                 {groupItems(b.proteinas).map(({name,count}) => <span key={name} className="btag prot">{count > 1 ? `${name} x${count}` : name}</span>)}
                                 {b.bebida && <span className="btag bev">{b.bebida}</span>}
-                                {b.caja > 0 && <span className="btag" style={{background:"#fef9ec",color:"#92400e",border:"1px solid #f5d88a"}}>📦 Caja +{fmt(b.caja)}</span>}
-                                {b.vaso > 0 && <span className="btag" style={{background:"#eff6ff",color:"#1e40af",border:"1px solid #bfdbfe"}}>🥤 Vaso +{fmt(b.vaso)}</span>}
+                                {b.caja > 0 && <span className="btag" style={{background:"#fef9ec",color:"#92400e",border:"1px solid #f5d88a"}}>Caja +{fmt(b.caja)}</span>}
+                                {b.vaso > 0 && <span className="btag" style={{background:"#eff6ff",color:"#1e40af",border:"1px solid #bfdbfe"}}>Vaso +{fmt(b.vaso)}</span>}
                               </div>
                             </div>
                           ))}

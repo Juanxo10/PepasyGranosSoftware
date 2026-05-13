@@ -453,12 +453,12 @@ export default function Pago() {
                   <span className="sv">{fmt(calcBowlPrice(b.tops, b.prots, b.bev))}</span>
                 </div>
                 <div className="srow" style={{ opacity: .7, fontSize: ".75rem", paddingLeft: ".5rem" }}>
-                  <span className="sl">📦 Caja</span>
+                  <span className="sl">Caja</span>
                   <span className="sv">+{fmt(CAJA)}</span>
                 </div>
                 {b.bev && (
                   <div className="srow" style={{ opacity: .7, fontSize: ".75rem", paddingLeft: ".5rem" }}>
-                    <span className="sl">🥤 Vaso</span>
+                    <span className="sl">Vaso</span>
                     <span className="sv">+{fmt(VASO)}</span>
                   </div>
                 )}

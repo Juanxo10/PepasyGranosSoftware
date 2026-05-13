@@ -622,7 +622,7 @@ export default function Menu() {
                       {(() => { const m = {}; b.prots.forEach(p => m[p] = (m[p]||0)+1); return Object.entries(m).map(([p,c]) => <span key={p} className="bt p">{p}{c>1?" ×2":""}</span>); })()}
                       {b.bev && <span className="bt b">{b.bev}</span>}
                     </div>
-                    <div style={{ fontSize: ".7rem", color: "var(--muted)", marginBottom: ".3rem" }}>📦 Caja +$1.000{b.bev ? " · 🥤 Vaso +$1.000" : ""}</div>
+                    <div style={{ fontSize: ".7rem", color: "var(--muted)", marginBottom: ".3rem" }}>Caja +$1.000{b.bev ? " · Vaso +$1.000" : ""}</div>
                     <div className="bprice">{fmt(calcBowlPrice(b.tops, b.prots, b.bev))}</div>
                   </div>
                 ))}
