@@ -643,17 +643,20 @@ export default function Admin() {
   };
 
   const beep = (ctx) => {
-    [0, 0.25].forEach((t) => {
+    // 3 pitidos con onda cuadrada (más fuerte y penetrante)
+    [0, 0.28, 0.56].forEach((t) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+      const compressor = ctx.createDynamicsCompressor();
       osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = "sine";
-      osc.frequency.value = 880;
-      gain.gain.setValueAtTime(0.45, ctx.currentTime + t);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.2);
+      gain.connect(compressor);
+      compressor.connect(ctx.destination);
+      osc.type = "square";
+      osc.frequency.value = 660;
+      gain.gain.setValueAtTime(1.0, ctx.currentTime + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.22);
       osc.start(ctx.currentTime + t);
-      osc.stop(ctx.currentTime + t + 0.2);
+      osc.stop(ctx.currentTime + t + 0.22);
     });
   };
 
