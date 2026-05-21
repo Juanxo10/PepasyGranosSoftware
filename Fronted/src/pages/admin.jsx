@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../config";
 
@@ -338,6 +338,36 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:va
   .bar-label{min-width:60px;font-size:.65rem;}
 }
 
+/* ─── TOAST NUEVO PEDIDO ─── */
+.new-order-toast{
+  position:fixed;bottom:1.2rem;right:1.2rem;z-index:500;
+  background:var(--g800);color:#fff;
+  border-radius:14px;padding:.9rem 1.2rem;
+  box-shadow:0 8px 32px rgba(0,0,0,.28);
+  display:flex;align-items:center;gap:.75rem;
+  animation:toastIn .3s ease;
+  max-width:320px;
+  border-left:4px solid #4ade80;
+}
+@keyframes toastIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.toast-icon{font-size:1.4rem;flex-shrink:0;}
+.toast-body{flex:1;min-width:0;}
+.toast-title{font-size:.88rem;font-weight:800;margin-bottom:.15rem;}
+.toast-sub{font-size:.72rem;color:var(--g400);font-weight:500;}
+.toast-close{background:none;border:none;color:rgba(255,255,255,.55);font-size:1rem;cursor:pointer;padding:.15rem;line-height:1;flex-shrink:0;}
+.toast-close:hover{color:#fff;}
+
+/* ─── PERMISOS NOTIFICACIÓN ─── */
+.notif-banner{
+  background:#fef3c7;border-bottom:1px solid #f5d88a;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.55rem .75rem;gap:.75rem;flex-wrap:wrap;
+}
+.notif-banner-text{font-size:.78rem;font-weight:600;color:#78350f;}
+.btn-allow-notif{border:none;border-radius:8px;padding:.3rem .85rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer;background:#92400e;color:#fff;transition:all .15s;}
+.btn-allow-notif:hover{background:#78350f;}
+.btn-dismiss-banner{background:none;border:none;font-size:.85rem;cursor:pointer;color:#92400e;padding:.15rem;}
+
 /* ─── SUGERENCIAS ─── */
 .sug-page{padding:1.5rem 2rem 3rem;width:100%;}
 .sug-page h2{font-size:1.5rem;font-weight:800;color:var(--g800);margin-bottom:1.2rem;letter-spacing:-.5px;}
@@ -532,6 +562,15 @@ export default function Admin() {
   const [confirmModal, setConfirmModal] = useState(null); // { mensaje, onConfirm }
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // ── Notificaciones de nuevo pedido ────────────────────────
+  const knownIdsRef = useRef(null); // null = primera carga (no notificar)
+  const [newOrderToast, setNewOrderToast] = useState(null); // { count, nombre }
+  const [showNotifBanner, setShowNotifBanner] = useState(
+    () => typeof Notification !== "undefined" && Notification.permission === "default"
+  );
+  const toastTimerRef = useRef(null);
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -601,10 +640,76 @@ export default function Admin() {
     }
   };
 
+  const playAlertSound = () => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      // Dos pitidos cortos
+      [0, 0.22].forEach((startOffset) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.4, ctx.currentTime + startOffset);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startOffset + 0.18);
+        osc.start(ctx.currentTime + startOffset);
+        osc.stop(ctx.currentTime + startOffset + 0.18);
+      });
+    } catch (_) {}
+  };
+
   const fetchOrders = () => {
     fetch(`${API_URL}/api/pedidos?_=${Date.now()}`)
       .then((r) => r.json())
-      .then((data) => { setOrders(data); setOrdersLoading(false); })
+      .then((data) => {
+        setOrders(data);
+        setOrdersLoading(false);
+
+        // ── Detección de pedidos nuevos ──────────────────────
+        const incoming = data.filter((o) => isToday(o.hora));
+        const incomingIds = new Set(incoming.map((o) => o.id));
+
+        if (knownIdsRef.current === null) {
+          // Primera carga: registrar IDs sin notificar
+          knownIdsRef.current = incomingIds;
+          return;
+        }
+
+        const nuevos = incoming.filter((o) => !knownIdsRef.current.has(o.id));
+        if (nuevos.length > 0) {
+          knownIdsRef.current = incomingIds;
+
+          // Sonido
+          playAlertSound();
+
+          // Toast visual
+          const primerNombre = nuevos[0].nombre?.split(" ")[0] || "cliente";
+          const toastInfo = {
+            count: nuevos.length,
+            nombre: nuevos.length === 1 ? primerNombre : `${nuevos.length} nuevos pedidos`,
+          };
+          setNewOrderToast(toastInfo);
+          if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+          toastTimerRef.current = setTimeout(() => setNewOrderToast(null), 8000);
+
+          // Notificación nativa del navegador
+          if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+            const title = nuevos.length === 1
+              ? `🛵 Nuevo pedido de ${primerNombre}`
+              : `🛵 ${nuevos.length} nuevos pedidos`;
+            new Notification(title, {
+              body: nuevos.length === 1
+                ? `Valor: ${fmt(nuevos[0].total)} · ${nuevos[0].addr}`
+                : "Revisa el panel de administración",
+              icon: "/favicon.ico",
+              tag: "nuevo-pedido",
+            });
+          }
+        } else {
+          knownIdsRef.current = incomingIds;
+        }
+      })
       .catch((err) => { console.error("Error al cargar pedidos:", err); setOrdersLoading(false); });
   };
 
@@ -778,6 +883,35 @@ export default function Admin() {
   return (
     <>
       <style>{CSS}</style>
+
+      {/* TOAST: nuevo pedido */}
+      {newOrderToast && (
+        <div className="new-order-toast">
+          <div className="toast-icon">🛵</div>
+          <div className="toast-body">
+            <div className="toast-title">
+              {newOrderToast.count === 1 ? `Nuevo pedido de ${newOrderToast.nombre}` : newOrderToast.nombre}
+            </div>
+            <div className="toast-sub">Revisa el panel</div>
+          </div>
+          <button className="toast-close" onClick={() => setNewOrderToast(null)}>✕</button>
+        </div>
+      )}
+
+      {/* BANNER: solicitar permiso notificaciones */}
+      {showNotifBanner && (
+        <div className="notif-banner">
+          <span className="notif-banner-text">🔔 Activa las notificaciones para recibir alertas cuando llegue un pedido nuevo</span>
+          <div style={{display:"flex",gap:".5rem",alignItems:"center"}}>
+            <button className="btn-allow-notif" onClick={() => {
+              Notification.requestPermission().then((p) => {
+                setShowNotifBanner(false);
+              });
+            }}>Activar</button>
+            <button className="btn-dismiss-banner" onClick={() => setShowNotifBanner(false)}>✕</button>
+          </div>
+        </div>
+      )}
 
       {/* NAV */}
       {/* Overlay menú móvil */}
