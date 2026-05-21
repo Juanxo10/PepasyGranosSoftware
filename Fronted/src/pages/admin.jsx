@@ -570,6 +570,7 @@ export default function Admin() {
     () => typeof Notification !== "undefined" && Notification.permission === "default"
   );
   const toastTimerRef = useRef(null);
+  const audioCtxRef = useRef(null); // AudioContext persistente (requiere gesto del usuario)
 
   const navigate = useNavigate();
 
@@ -642,22 +643,46 @@ export default function Admin() {
 
   const playAlertSound = () => {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      // Dos pitidos cortos
-      [0, 0.22].forEach((startOffset) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = "sine";
-        osc.frequency.value = 880;
-        gain.gain.setValueAtTime(0.4, ctx.currentTime + startOffset);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startOffset + 0.18);
-        osc.start(ctx.currentTime + startOffset);
-        osc.stop(ctx.currentTime + startOffset + 0.18);
-      });
+      // Reutilizar el mismo contexto; si está suspendido, resumirlo
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      const play = () => {
+        [0, 0.22].forEach((startOffset) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = "sine";
+          osc.frequency.value = 880;
+          gain.gain.setValueAtTime(0.4, ctx.currentTime + startOffset);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startOffset + 0.18);
+          osc.start(ctx.currentTime + startOffset);
+          osc.stop(ctx.currentTime + startOffset + 0.18);
+        });
+      };
+      if (ctx.state === "suspended") {
+        ctx.resume().then(play);
+      } else {
+        play();
+      }
     } catch (_) {}
   };
+
+  // Desbloquear el AudioContext con el primer clic del usuario
+  useEffect(() => {
+    const unlock = () => {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtxRef.current.state === "suspended") {
+        audioCtxRef.current.resume();
+      }
+    };
+    document.addEventListener("click", unlock, { once: true });
+    return () => document.removeEventListener("click", unlock);
+  }, []);
 
   const fetchOrders = () => {
     fetch(`${API_URL}/api/pedidos?_=${Date.now()}`)
