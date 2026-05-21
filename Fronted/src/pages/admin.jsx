@@ -571,6 +571,7 @@ export default function Admin() {
   );
   const toastTimerRef = useRef(null);
   const audioCtxRef = useRef(null); // AudioContext persistente (requiere gesto del usuario)
+  const [soundReady, setSoundReady] = useState(false); // true = audio desbloqueado
 
   const navigate = useNavigate();
 
@@ -641,48 +642,43 @@ export default function Admin() {
     }
   };
 
-  const playAlertSound = () => {
+  const beep = (ctx) => {
+    [0, 0.25].forEach((t) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.45, ctx.currentTime + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.2);
+      osc.start(ctx.currentTime + t);
+      osc.stop(ctx.currentTime + t + 0.2);
+    });
+  };
+
+  const activarSonido = () => {
     try {
-      // Reutilizar el mismo contexto; si está suspendido, resumirlo
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
       }
       const ctx = audioCtxRef.current;
-      const play = () => {
-        [0, 0.22].forEach((startOffset) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.type = "sine";
-          osc.frequency.value = 880;
-          gain.gain.setValueAtTime(0.4, ctx.currentTime + startOffset);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startOffset + 0.18);
-          osc.start(ctx.currentTime + startOffset);
-          osc.stop(ctx.currentTime + startOffset + 0.18);
-        });
-      };
+      const run = () => { beep(ctx); setSoundReady(true); };
       if (ctx.state === "suspended") {
-        ctx.resume().then(play);
+        ctx.resume().then(run);
       } else {
-        play();
+        run();
       }
     } catch (_) {}
   };
 
-  // Desbloquear el AudioContext con el primer clic del usuario
-  useEffect(() => {
-    const unlock = () => {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtxRef.current.state === "suspended") {
-        audioCtxRef.current.resume();
-      }
-    };
-    document.addEventListener("click", unlock, { once: true });
-    return () => document.removeEventListener("click", unlock);
-  }, []);
+  const playAlertSound = () => {
+    try {
+      const ctx = audioCtxRef.current;
+      if (!ctx || ctx.state === "suspended") return;
+      beep(ctx);
+    } catch (_) {}
+  };
 
   const fetchOrders = () => {
     fetch(`${API_URL}/api/pedidos?_=${Date.now()}`)
@@ -983,6 +979,14 @@ export default function Admin() {
               {cajaCargando ? "…" : tiendaAbierta ? "Caja abierta" : "Caja cerrada"}
             </button>
           )}
+          <button
+            className="btn-historial"
+            style={soundReady ? {background:"#4ade80",color:"#14532d",borderColor:"#4ade80"} : {borderColor:"#f59e0b",color:"#fbbf24"}}
+            onClick={activarSonido}
+            title={soundReady ? "Sonido activo" : "Haz clic para activar el sonido de alertas"}
+          >
+            {soundReady ? "🔔 Sonido ✓" : "🔕 Activar sonido"}
+          </button>
           <div className="live-dot"><span></span> En vivo</div>
           <button className="btn-logout" onClick={handleLogout}>Salir</button>
         </div>
