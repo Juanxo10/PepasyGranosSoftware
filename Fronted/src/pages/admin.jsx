@@ -880,32 +880,28 @@ export default function Admin() {
     const now = new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Pedido #${o.id}</title><style>
       *{margin:0;padding:0;box-sizing:border-box;}
-      body{font-family:'Courier New',monospace;font-size:13px;color:#000;padding:12px;width:72mm;}
-      .header{text-align:center;border-bottom:2px dashed #000;padding-bottom:8px;margin-bottom:8px;}
-      .brand{font-size:17px;font-weight:bold;letter-spacing:1px;}
-      .sub{font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
-      .hora{font-size:11px;margin-top:4px;color:#444;}
-      .client{margin-bottom:8px;border-bottom:1px dashed #999;padding-bottom:6px;}
-      .client-name{font-size:14px;font-weight:bold;}
-      .client-tel{font-size:11px;color:#444;}
-      .section-lbl{font-size:9px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#555;margin:6px 0 3px;}
-      .bowl{border:1px solid #ccc;border-radius:4px;padding:5px 6px;margin-bottom:5px;}
-      .bowl-num{font-weight:bold;font-size:12px;margin-bottom:3px;}
+      body{font-family:'Courier New',monospace;font-size:15px;color:#000;padding:10px;width:72mm;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .header{text-align:center;border-bottom:3px solid #000;padding-bottom:8px;margin-bottom:8px;}
+      .brand{font-size:20px;font-weight:bold;letter-spacing:2px;}
+      .sub{font-size:11px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
+      .hora{font-size:13px;font-weight:bold;margin-top:5px;}
+      .client{margin-bottom:8px;border-bottom:2px dashed #000;padding-bottom:6px;}
+      .client-name{font-size:16px;font-weight:bold;}
+      .client-tel{font-size:13px;font-weight:bold;}
+      .section-lbl{font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid #000;margin:8px 0 4px;padding-bottom:2px;}
+      .bowl{border:2px solid #000;padding:6px 7px;margin-bottom:6px;}
+      .bowl-num{font-weight:bold;font-size:14px;margin-bottom:4px;border-bottom:1px dashed #000;padding-bottom:3px;}
       .tags{display:flex;flex-wrap:wrap;gap:3px;}
-      span{display:inline-block;border-radius:3px;padding:1px 5px;font-size:11px;border:1px solid #ccc;}
-      .carbo{background:#e8f5e9;border-color:#4A7C59;font-weight:bold;}
-      .inc{background:#d4ead4;border-color:#7ab87a;}
-      .prot{background:#fff3e0;border-color:#f5c784;font-weight:bold;}
-      .bev{background:#dbeafe;border-color:#93c5fd;}
-      .extra{background:#fef9ec;border-color:#f5d88a;}
-      .tag{background:#f5f5f5;}
-      .entrega{border-top:1px dashed #999;margin-top:8px;padding-top:6px;}
-      .addr{font-size:12px;margin-top:3px;}
-      .ref{font-size:11px;color:#555;}
-      .total{border-top:2px dashed #000;margin-top:10px;padding-top:6px;text-align:right;font-size:15px;font-weight:bold;}
-      @media print{body{width:auto;}}
+      span{display:inline-block;padding:2px 6px;font-size:12px;font-weight:bold;border:2px solid #000;}
+      .carbo{text-decoration:underline;}
+      .prot{border-width:3px;}
+      .entrega{border-top:2px dashed #000;margin-top:8px;padding-top:6px;}
+      .addr{font-size:14px;font-weight:bold;margin-top:3px;}
+      .ref{font-size:12px;}
+      .total{border-top:3px solid #000;margin-top:10px;padding-top:6px;text-align:right;font-size:18px;font-weight:bold;}
+      @media print{body{width:auto;}@page{margin:4mm;}}
     </style></head><body>
-      <div class="header"><div class="brand">PEPAS COFFEE</div><div class="sub">Ticket de cocina</div><div class="hora">${now} — Pedido #${o.id}</div></div>
+      <div class="header"><div class="brand">PEPAS COFFEE</div><div class="sub">Ticket de cocina</div><div class="hora">${now} &mdash; Pedido #${o.id}</div></div>
       <div class="client"><div class="client-name">${o.nombre}</div><div class="client-tel">${o.tel}</div></div>
       <div class="section-lbl">Bowls</div>${bowlRows}${extras}
       <div class="entrega"><div class="section-lbl">Entrega</div>${entrega}</div>
