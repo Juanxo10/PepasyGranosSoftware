@@ -592,7 +592,7 @@ export default function Pago() {
           </div>
         )}
 
-        {/* Panel Wompi */
+        {/* Panel Wompi */}
         {payMethod === "wompi" && (
           <div className="extra-panel show">
             <strong>Pago seguro en línea</strong>
@@ -605,7 +605,7 @@ export default function Pago() {
           </div>
         )}
 
-        {/* CTA */
+        {/* CTA */}
         <div>
           {payMethod === "efectivo" ? (
             <button className="btn-card" onClick={handleConfirm} disabled={isSubmitting}>
