@@ -560,8 +560,8 @@ export default function Pago() {
           <div className={`pm${payMethod === "efectivo" ? " sel" : ""}`} onClick={() => setPayMethod("efectivo")}>
             <div className="pm-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--g700)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 9v6M10 10h3a1 1 0 0 1 0 2h-2a1 1 0 0 0 0 2h3"/></svg></div>
             <div className="pm-info">
-              <strong>Contraentrega en efectivo</strong>
-              <span>Pagas al domiciliario cuando llegue tu pedido.</span>
+              <strong>{tipoEntrega === "recogida" ? "Pagar en caja" : "Contraentrega en efectivo"}</strong>
+              <span>{tipoEntrega === "recogida" ? "Pagas directamente en la tienda al recoger tu pedido." : "Pagas al domiciliario cuando llegue tu pedido."}</span>
             </div>
             <div className="pm-radio">{payMethod === "efectivo" ? "✓" : ""}</div>
           </div>
@@ -582,8 +582,11 @@ export default function Pago() {
             <strong>¿Cómo funciona?</strong>
             <ul>
               <li>Confirmas tu pedido desde esta página</li>
-              <li>Preparamos y despachamos tu bowl</li>
-              <li>Pagas en efectivo al domiciliario</li>
+              <li>Preparamos tu pedido</li>
+              {tipoEntrega === "recogida"
+                ? <li>Vienes a la tienda y pagas en caja</li>
+                : <li>Despachamos y pagas en efectivo al domiciliario</li>
+              }
               <li>¡Disfruta!</li>
             </ul>
           </div>
