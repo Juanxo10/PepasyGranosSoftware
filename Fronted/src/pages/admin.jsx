@@ -43,6 +43,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:va
 .ftab{border:1.5px solid var(--border);background:#fff;border-radius:999px;padding:.3rem .85rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;}
 .ftab:hover{border-color:var(--g400);}
 .ftab.active{background:var(--g800);color:#fff;border-color:var(--g800);}
+.btn-print{background:#fff;border:1.5px solid var(--border);color:var(--muted);border-radius:8px;padding:.35rem .65rem;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.3rem;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;}
+.btn-print:hover{border-color:var(--g600);color:var(--g800);}
 .toolbar-right{display:flex;gap:.6rem;align-items:center;}
 .search-wrap{position:relative;}
 .search-wrap input{border:1.5px solid var(--border);border-radius:999px;padding:.35rem 1rem .35rem 3.8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;color:var(--text);outline:none;width:220px;background:#fff;transition:border-color .15s;}
@@ -853,6 +855,69 @@ export default function Admin() {
     return Object.entries(counts).map(([name, count]) => ({ name, count }));
   };
 
+  const printOrder = (o) => {
+    const grp = (arr) => {
+      const c = {}; arr.forEach(x => { c[x] = (c[x] || 0) + 1; });
+      return Object.entries(c).map(([n, cnt]) => cnt > 1 ? `${n} x${cnt}` : n).join(", ");
+    };
+    const bowlRows = o.bowls.map((b, i) => {
+      const parts = [];
+      if (b.base) parts.push(`<span class="carbo">${b.base}</span>`);
+      (b.incluidos || []).forEach(x => parts.push(`<span class="inc">${x}</span>`));
+      grp(b.toppings).split(", ").filter(Boolean).forEach(x => parts.push(`<span class="tag">${x}</span>`));
+      grp(b.proteinas).split(", ").filter(Boolean).forEach(x => parts.push(`<span class="prot">${x}</span>`));
+      if (b.bebida) parts.push(`<span class="bev">${b.bebida}</span>`);
+      if (b.caja > 0) parts.push(`<span class="extra">Caja +${fmt(b.caja)}</span>`);
+      if (b.vaso > 0) parts.push(`<span class="extra">Vaso +${fmt(b.vaso)}</span>`);
+      return `<div class="bowl"><div class="bowl-num">Bowl ${i + 1}</div><div class="tags">${parts.join("")}</div></div>`;
+    }).join("");
+    const extras = Object.keys(o.extraItems || {}).length
+      ? `<div class="section-lbl">Productos cafetería</div><div class="bowl"><div class="tags">${Object.entries(o.extraItems).map(([n,q]) => `<span class="tag">${n} ×${q}</span>`).join("")}</div></div>`
+      : "";
+    const entrega = o.tipo_entrega === "recogida"
+      ? `<div class="addr">Recogida en tienda / Come aquí</div>`
+      : `<div class="addr">${o.addr}, ${o.barrio}${o.ref ? `<br/><span class="ref">${o.ref}</span>` : ""}</div>`;
+    const now = new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Pedido #${o.id}</title><style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{font-family:'Courier New',monospace;font-size:13px;color:#000;padding:12px;width:72mm;}
+      .header{text-align:center;border-bottom:2px dashed #000;padding-bottom:8px;margin-bottom:8px;}
+      .brand{font-size:17px;font-weight:bold;letter-spacing:1px;}
+      .sub{font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+      .hora{font-size:11px;margin-top:4px;color:#444;}
+      .client{margin-bottom:8px;border-bottom:1px dashed #999;padding-bottom:6px;}
+      .client-name{font-size:14px;font-weight:bold;}
+      .client-tel{font-size:11px;color:#444;}
+      .section-lbl{font-size:9px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#555;margin:6px 0 3px;}
+      .bowl{border:1px solid #ccc;border-radius:4px;padding:5px 6px;margin-bottom:5px;}
+      .bowl-num{font-weight:bold;font-size:12px;margin-bottom:3px;}
+      .tags{display:flex;flex-wrap:wrap;gap:3px;}
+      span{display:inline-block;border-radius:3px;padding:1px 5px;font-size:11px;border:1px solid #ccc;}
+      .carbo{background:#e8f5e9;border-color:#4A7C59;font-weight:bold;}
+      .inc{background:#d4ead4;border-color:#7ab87a;}
+      .prot{background:#fff3e0;border-color:#f5c784;font-weight:bold;}
+      .bev{background:#dbeafe;border-color:#93c5fd;}
+      .extra{background:#fef9ec;border-color:#f5d88a;}
+      .tag{background:#f5f5f5;}
+      .entrega{border-top:1px dashed #999;margin-top:8px;padding-top:6px;}
+      .addr{font-size:12px;margin-top:3px;}
+      .ref{font-size:11px;color:#555;}
+      .total{border-top:2px dashed #000;margin-top:10px;padding-top:6px;text-align:right;font-size:15px;font-weight:bold;}
+      @media print{body{width:auto;}}
+    </style></head><body>
+      <div class="header"><div class="brand">PEPAS COFFEE</div><div class="sub">Ticket de cocina</div><div class="hora">${now} — Pedido #${o.id}</div></div>
+      <div class="client"><div class="client-name">${o.nombre}</div><div class="client-tel">${o.tel}</div></div>
+      <div class="section-lbl">Bowls</div>${bowlRows}${extras}
+      <div class="entrega"><div class="section-lbl">Entrega</div>${entrega}</div>
+      <div class="total">${fmt(o.total)}</div>
+    </body></html>`;
+    const w = window.open("", "_blank", "width=400,height=600");
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    w.print();
+  };
+
   const sendWA = (o, tipo) => {
     const lines = o.bowls
       .map((b, i) =>
@@ -1111,6 +1176,7 @@ export default function Admin() {
                       <div className="price-sub">{o.bowls.length} bowl{o.bowls.length !== 1 ? "s" : ""}{Object.keys(o.extraItems || {}).length > 0 ? " + productos" : ""}{o.tipo_entrega === "recogida" ? " · recogida" : " + domicilio"}</div>
                     </div>
                     <div className="footer-actions">
+                      <button className="btn-print" onClick={() => printOrder(o)} title="Imprimir ticket de cocina">🖨️ Imprimir</button>
                       {o.status === "nuevo" && (
                         <>
                           <button className="action-btn btn-advance" onClick={() => changeStatus(o.id, "preparando")}>Preparar pedido</button>
