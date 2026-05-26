@@ -161,6 +161,7 @@ export default function Pago() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [payMethod, setPayMethod] = useState("efectivo"); // "efectivo" | "wompi"
+  const [tipoEntrega, setTipoEntrega] = useState("domicilio"); // "domicilio" | "recogida"
 
   const fnameRef = useRef(null);
 
@@ -191,7 +192,8 @@ export default function Pago() {
     const almondExtra = (FRAPPES_NOMBRES.has(n) && frappesAlmond[n]) ? LECHE_ALMENDRAS * qty : 0;
     return s + (CAFETERIA_PRECIOS[n] ?? 0) * qty + almondExtra;
   }, 0);
-  const grandTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots, b.bev), 0) + extrasSubtotal + DOM;
+  const domicilioCosto = tipoEntrega === "recogida" ? 0 : DOM;
+  const grandTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots, b.bev), 0) + extrasSubtotal + domicilioCosto;
 
   const validateDelivery = () => {
     const e = {};
@@ -212,24 +214,26 @@ export default function Pago() {
       e.fphone = "Solo dígitos, entre 7 y 10 cifras";
     }
 
-    if (!addr) {
-      e.faddr = "Ingresa tu dirección";
-    } else if (addr.length < 5) {
-      e.faddr = "Dirección demasiado corta";
-    } else if (addr.length > 200) {
-      e.faddr = "Máximo 200 caracteres";
-    }
+    if (tipoEntrega === "domicilio") {
+      if (!addr) {
+        e.faddr = "Ingresa tu dirección";
+      } else if (addr.length < 5) {
+        e.faddr = "Dirección demasiado corta";
+      } else if (addr.length > 200) {
+        e.faddr = "Máximo 200 caracteres";
+      }
 
-    if (!barrio) {
-      e.fbarrio = "Ingresa el barrio";
-    } else if (barrio.length < 2) {
-      e.fbarrio = "Barrio demasiado corto";
-    } else if (barrio.length > 60) {
-      e.fbarrio = "Máximo 60 caracteres";
-    }
+      if (!barrio) {
+        e.fbarrio = "Ingresa el barrio";
+      } else if (barrio.length < 2) {
+        e.fbarrio = "Barrio demasiado corto";
+      } else if (barrio.length > 60) {
+        e.fbarrio = "Máximo 60 caracteres";
+      }
 
-    if (freferencia.trim().length > 150) {
-      e.freferencia = "Máximo 150 caracteres";
+      if (freferencia.trim().length > 150) {
+        e.freferencia = "Máximo 150 caracteres";
+      }
     }
 
     if (fnotes.trim().length > 300) {
@@ -258,12 +262,13 @@ export default function Pago() {
       cliente: {
         nombre: fname.trim(),
         telefono: fphone.trim(),
-        direccion: faddr.trim(),
-        barrio: fbarrio.trim(),
-        referencia: freferencia.trim(),
+        direccion: tipoEntrega === "domicilio" ? faddr.trim() : "",
+        barrio: tipoEntrega === "domicilio" ? fbarrio.trim() : "",
+        referencia: tipoEntrega === "domicilio" ? freferencia.trim() : "",
         notas: fnotes.trim(),
       },
       metodo_pago: "Contraentrega en efectivo",
+      tipo_entrega: tipoEntrega,
     };
 
     try {
@@ -328,12 +333,13 @@ export default function Pago() {
       cliente: {
         nombre: fname.trim(),
         telefono: fphone.trim(),
-        direccion: faddr.trim(),
-        barrio: fbarrio.trim(),
-        referencia: freferencia.trim(),
+        direccion: tipoEntrega === "domicilio" ? faddr.trim() : "",
+        barrio: tipoEntrega === "domicilio" ? fbarrio.trim() : "",
+        referencia: tipoEntrega === "domicilio" ? freferencia.trim() : "",
         notas: fnotes.trim(),
       },
       metodo_pago: "Transferencia Wompi",
+      tipo_entrega: tipoEntrega,
     };
 
     try {
@@ -432,7 +438,7 @@ export default function Pago() {
       <div className="wrap">
         <div style={{ marginBottom: "1.4rem" }}>
           <div className="page-title">Confirmar pedido</div>
-          <div className="page-sub">Revisa tu pedido, ingresa tu dirección y confirma el pedido.</div>
+          <div className="page-sub">Revisa tu pedido, elige cómo recibirlo y confirma.</div>
         </div>
 
         {/* Resumen del pedido */}
@@ -476,7 +482,7 @@ export default function Pago() {
             })}
             <div className="srow">
               <span className="sl">Domicilio</span>
-              <span className="sv">{fmt(DOM)}</span>
+              <span className="sv">{tipoEntrega === "recogida" ? <span style={{color:"var(--g600)",fontWeight:700}}>Gratis (recogida)</span> : fmt(DOM)}</span>
             </div>
             <div className="srow stot">
               <span className="sl">Total estimado</span>
@@ -485,8 +491,30 @@ export default function Pago() {
           </div>
         </div>
 
+        {/* Tipo de entrega */}
+        <span className="slabel">Cómo quieres recibir tu pedido</span>
+        <div className="pm-grid" style={{marginBottom:"1.2rem"}}>
+          <div className={`pm${tipoEntrega === "domicilio" ? " sel" : ""}`} onClick={() => setTipoEntrega("domicilio")}>
+            <div className="pm-icon">🚴</div>
+            <div className="pm-info">
+              <strong>Domicilio a tu dirección</strong>
+              <span>Te lo llevamos donde estés. Costo adicional de {fmt(DOM)}.</span>
+            </div>
+            <div className="pm-radio">{tipoEntrega === "domicilio" ? "✓" : ""}</div>
+          </div>
+          <div className={`pm${tipoEntrega === "recogida" ? " sel" : ""}`} onClick={() => setTipoEntrega("recogida")}>
+            <div className="pm-icon">🏪</div>
+            <div className="pm-info">
+              <strong>Recoger en tienda / Comer aquí</strong>
+              <span>Ven a Pepas Coffee y recoge tu pedido. Sin costo de domicilio.</span>
+              <span className="pm-badge">Gratis</span>
+            </div>
+            <div className="pm-radio">{tipoEntrega === "recogida" ? "✓" : ""}</div>
+          </div>
+        </div>
+
         {/* Datos de entrega */}
-        <span className="slabel">Datos de entrega</span>
+        <span className="slabel">{tipoEntrega === "recogida" ? "Tus datos de contacto" : "Datos de entrega"}</span>
         <div className="form-card">
           <div className="form-grid">
             <div className="form-group">
@@ -499,21 +527,25 @@ export default function Pago() {
               <input className={`fi${errors.fphone ? " err" : ""}`} type="tel" id="fphone" placeholder="300 000 0000" autoComplete="tel" maxLength={10} value={fphone} onChange={(e) => setFphone(e.target.value.replace(/[^\d\s]/g, ""))} />
               {errors.fphone && <span className="err-msg show">{errors.fphone}</span>}
             </div>
-            <div className="form-group full">
-              <label className="fl" htmlFor="faddr">Dirección<span className="req">*</span></label>
-              <input className={`fi${errors.faddr ? " err" : ""}`} type="text" id="faddr" placeholder="Calle, carrera, número, apartamento…" autoComplete="street-address" maxLength={200} value={faddr} onChange={(e) => setFaddr(e.target.value)} />
-              {errors.faddr && <span className="err-msg show">{errors.faddr}</span>}
-            </div>
-            <div className="form-group">
-              <label className="fl" htmlFor="fbarrio">Barrio<span className="req">*</span></label>
-              <input className={`fi${errors.fbarrio ? " err" : ""}`} type="text" id="fbarrio" placeholder="Ej: El Prado" maxLength={60} value={fbarrio} onChange={(e) => setFbarrio(e.target.value)} />
-              {errors.fbarrio && <span className="err-msg show">{errors.fbarrio}</span>}
-            </div>
-            <div className="form-group">
-              <label className="fl" htmlFor="freferencia">Referencia (opcional)</label>
-              <input className={`fi${errors.freferencia ? " err" : ""}`} type="text" id="freferencia" placeholder="Ej: casa amarilla, portón negro" maxLength={150} value={freferencia} onChange={(e) => setFreferencia(e.target.value)} />
-              {errors.freferencia && <span className="err-msg show">{errors.freferencia}</span>}
-            </div>
+            {tipoEntrega === "domicilio" && (
+              <>
+                <div className="form-group full">
+                  <label className="fl" htmlFor="faddr">Dirección<span className="req">*</span></label>
+                  <input className={`fi${errors.faddr ? " err" : ""}`} type="text" id="faddr" placeholder="Calle, carrera, número, apartamento…" autoComplete="street-address" maxLength={200} value={faddr} onChange={(e) => setFaddr(e.target.value)} />
+                  {errors.faddr && <span className="err-msg show">{errors.faddr}</span>}
+                </div>
+                <div className="form-group">
+                  <label className="fl" htmlFor="fbarrio">Barrio<span className="req">*</span></label>
+                  <input className={`fi${errors.fbarrio ? " err" : ""}`} type="text" id="fbarrio" placeholder="Ej: El Prado" maxLength={60} value={fbarrio} onChange={(e) => setFbarrio(e.target.value)} />
+                  {errors.fbarrio && <span className="err-msg show">{errors.fbarrio}</span>}
+                </div>
+                <div className="form-group">
+                  <label className="fl" htmlFor="freferencia">Referencia (opcional)</label>
+                  <input className={`fi${errors.freferencia ? " err" : ""}`} type="text" id="freferencia" placeholder="Ej: casa amarilla, portón negro" maxLength={150} value={freferencia} onChange={(e) => setFreferencia(e.target.value)} />
+                  {errors.freferencia && <span className="err-msg show">{errors.freferencia}</span>}
+                </div>
+              </>
+            )}
             <div className="form-group full">
               <label className="fl" htmlFor="fnotes">Notas adicionales (opcional)</label>
               <textarea className={`fi${errors.fnotes ? " err" : ""}`} id="fnotes" placeholder="Alergias, instrucciones especiales, sin picante…" maxLength={300} value={fnotes} onChange={(e) => setFnotes(e.target.value)} />

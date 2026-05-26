@@ -1090,12 +1090,14 @@ export default function Admin() {
                         </div>
                       </>
                     )}
-                    <span className="oc-section-lbl">Dirección</span>
+                    <span className="oc-section-lbl">Entrega</span>
                     <div className="addr-row">
                       <span className="addr-icon"></span>
                       <div>
-                        <div className="addr-text">{o.addr}, {o.barrio}</div>
-                        {o.ref && <div className="addr-ref">{o.ref}</div>}
+                        {o.tipo_entrega === "recogida"
+                          ? <div className="addr-text" style={{color:"var(--g700)",fontWeight:600}}>🏪 Recogida en tienda / Come aquí</div>
+                          : <><div className="addr-text">{o.addr}, {o.barrio}</div>{o.ref && <div className="addr-ref">{o.ref}</div>}</>
+                        }
                       </div>
                     </div>
                     <span className="pay-tag">{payIcon} {o.pago}</span>
@@ -1103,7 +1105,7 @@ export default function Admin() {
                   <div className="oc-footer">
                     <div>
                       <div className="price-total">{fmt(o.total)}</div>
-                      <div className="price-sub">{o.bowls.length} bowl{o.bowls.length !== 1 ? "s" : ""}{Object.keys(o.extraItems || {}).length > 0 ? " + productos" : ""} + domicilio</div>
+                      <div className="price-sub">{o.bowls.length} bowl{o.bowls.length !== 1 ? "s" : ""}{Object.keys(o.extraItems || {}).length > 0 ? " + productos" : ""}{o.tipo_entrega === "recogida" ? " · recogida" : " + domicilio"}</div>
                     </div>
                     <div className="footer-actions">
                       {o.status === "nuevo" && (
@@ -1217,12 +1219,14 @@ export default function Admin() {
                             </div>
                           </>
                         )}
-                        <span className="oc-section-lbl">Dirección</span>
+                        <span className="oc-section-lbl">Entrega</span>
                         <div className="addr-row">
                           <span className="addr-icon"></span>
                           <div>
-                            <div className="addr-text">{o.addr}, {o.barrio}</div>
-                            {o.ref && <div className="addr-ref">{o.ref}</div>}
+                            {o.tipo_entrega === "recogida"
+                              ? <div className="addr-text" style={{color:"var(--g700)",fontWeight:600}}>🏪 Recogida en tienda / Come aquí</div>
+                              : <><div className="addr-text">{o.addr}, {o.barrio}</div>{o.ref && <div className="addr-ref">{o.ref}</div>}</>
+                            }
                           </div>
                         </div>
                         <span className="pay-tag">{payIcon} {o.pago}</span>
@@ -1230,7 +1234,7 @@ export default function Admin() {
                       <div className="oc-footer">
                         <div>
                           <div className="price-total">{fmt(o.total)}</div>
-                          <div className="price-sub">{o.bowls.length} bowl{o.bowls.length !== 1 ? "s" : ""}{Object.keys(o.extraItems || {}).length > 0 ? " + productos" : ""} + domicilio</div>
+                          <div className="price-sub">{o.bowls.length} bowl{o.bowls.length !== 1 ? "s" : ""}{Object.keys(o.extraItems || {}).length > 0 ? " + productos" : ""}{o.tipo_entrega === "recogida" ? " · recogida" : " + domicilio"}</div>
                         </div>
                         <div className="footer-actions">
                           <span className="done-text">{statusLabel(o.status)}</span>

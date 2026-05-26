@@ -2,6 +2,7 @@ const pool = require("../db");
 
 const ESTADOS_VALIDOS = ["nuevo", "preparando", "camino", "entregado", "cancelado"];
 const METODOS_VALIDOS = ["Contraentrega en efectivo", "Transferencia Wompi"];
+const TIPOS_ENTREGA_VALIDOS = ["domicilio", "recogida"];
 
 // ── Caché en memoria para pedidos ───────────────────────
 let _cache = null;
@@ -14,15 +15,23 @@ function invalidarCache() {
 }
 
 // ── Crear pedido ─────────────────────────────────────────
-async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_pago }) {
+async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_pago, tipo_entrega = "domicilio" }) {
   if (!METODOS_VALIDOS.includes(metodo_pago)) {
     throw { status: 400, message: "Método de pago no disponible" };
   }
 
+  if (!TIPOS_ENTREGA_VALIDOS.includes(tipo_entrega)) {
+    throw { status: 400, message: "Tipo de entrega no válido" };
+  }
+
+  const esRecogida = tipo_entrega === "recogida";
   const { nombre, telefono, direccion, barrio, referencia, notas } = cliente || {};
 
-  if (!nombre || !telefono || !direccion || !barrio) {
+  if (!nombre || !telefono) {
     throw { status: 400, message: "Faltan datos del cliente" };
+  }
+  if (!esRecogida && (!direccion || !barrio)) {
+    throw { status: 400, message: "Faltan datos de entrega (dirección y barrio requeridos para domicilio)" };
   }
   if (!Array.isArray(bowls)) {
     throw { status: 400, message: "Formato de pedido inválido" };
@@ -42,7 +51,8 @@ async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_p
     const conf = {};
     for (const row of confRes.rows) conf[row.clave] = Number(row.valor);
 
-    const DOMICILIO       = conf.domicilio        ?? conf.precio_domicilio        ?? 6000;
+    const DOMICILIO_CONFIG = conf.domicilio        ?? conf.precio_domicilio        ?? 6000;
+    const DOMICILIO       = esRecogida ? 0 : DOMICILIO_CONFIG;
     const BOWL_BASE       = conf.bowl_base         ?? conf.precio_base_bowl        ?? 12000;
     const TOPPINGS_GRATIS = conf.toppings_gratis   ?? conf.toppings_incluidos      ?? 4;
     const TOPPING_EXTRA   = conf.topping_extra      ?? conf.precio_topping_extra   ?? 3000;
@@ -166,10 +176,10 @@ async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_p
 
     const pedidoRes = await client.query(
       `INSERT INTO pedidos
-        (numero_pedido, nombre_cliente, telefono, direccion, barrio, referencia, notas, metodo_pago, subtotal, domicilio, total, estado)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+        (numero_pedido, nombre_cliente, telefono, direccion, barrio, referencia, notas, metodo_pago, subtotal, domicilio, total, estado, tipo_entrega)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
        RETURNING id, numero_pedido, total`,
-      [numero_pedido, nombre, telefono, direccion, barrio, referencia || null, notasFinal, metodo_pago, subtotal, DOMICILIO, total, estadoInicial]
+      [numero_pedido, nombre, telefono, esRecogida ? null : direccion, esRecogida ? null : barrio, referencia || null, notasFinal, metodo_pago, subtotal, DOMICILIO, total, estadoInicial, tipo_entrega]
     );
     const pedidoId = pedidoRes.rows[0].id;
 
@@ -291,6 +301,7 @@ async function listarPedidos() {
       ref: p.referencia,
       notas: p.notas,
       pago: p.metodo_pago,
+      tipo_entrega: p.tipo_entrega || "domicilio",
       status: p.estado,
       subtotal: p.subtotal,
       domicilio: p.domicilio,
