@@ -911,7 +911,7 @@ export default function Admin() {
       {/* TOAST: nuevo pedido */}
       {newOrderToast && (
         <div className="new-order-toast">
-          <div className="toast-icon">🛵</div>
+          <div className="toast-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
           <div className="toast-body">
             <div className="toast-title">
               {newOrderToast.count === 1 ? `Nuevo pedido de ${newOrderToast.nombre}` : newOrderToast.nombre}
@@ -925,7 +925,7 @@ export default function Admin() {
       {/* BANNER: solicitar permiso notificaciones */}
       {showNotifBanner && (
         <div className="notif-banner">
-          <span className="notif-banner-text">🔔 Activa las notificaciones para recibir alertas cuando llegue un pedido nuevo</span>
+          <span className="notif-banner-text">Activa las notificaciones para recibir alertas cuando llegue un pedido nuevo</span>
           <div style={{display:"flex",gap:".5rem",alignItems:"center"}}>
             <button className="btn-allow-notif" onClick={() => {
               Notification.requestPermission().then((p) => {
@@ -988,7 +988,7 @@ export default function Admin() {
             onClick={activarSonido}
             title={soundReady ? "Sonido activo" : "Haz clic para activar el sonido de alertas"}
           >
-            {soundReady ? "🔔 Sonido ✓" : "🔕 Activar sonido"}
+            {soundReady ? "Sonido activo" : "Activar sonido"}
           </button>
           <div className="live-dot"><span></span> En vivo</div>
           <button className="btn-logout" onClick={handleLogout}>Salir</button>
@@ -1095,7 +1095,7 @@ export default function Admin() {
                       <span className="addr-icon"></span>
                       <div>
                         {o.tipo_entrega === "recogida"
-                          ? <div className="addr-text" style={{color:"var(--g700)",fontWeight:600}}>🏪 Recogida en tienda / Come aquí</div>
+                          ? <div className="addr-text" style={{color:"var(--g700)",fontWeight:600}}>Recogida en tienda / Come aquí</div>
                           : <><div className="addr-text">{o.addr}, {o.barrio}</div>{o.ref && <div className="addr-ref">{o.ref}</div>}</>
                         }
                       </div>
@@ -1224,7 +1224,7 @@ export default function Admin() {
                           <span className="addr-icon"></span>
                           <div>
                             {o.tipo_entrega === "recogida"
-                              ? <div className="addr-text" style={{color:"var(--g700)",fontWeight:600}}>🏪 Recogida en tienda / Come aquí</div>
+                              ? <div className="addr-text" style={{color:"var(--g700)",fontWeight:600}}>Recogida en tienda / Come aquí</div>
                               : <><div className="addr-text">{o.addr}, {o.barrio}</div>{o.ref && <div className="addr-ref">{o.ref}</div>}</>
                             }
                           </div>

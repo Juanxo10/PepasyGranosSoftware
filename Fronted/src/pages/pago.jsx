@@ -495,7 +495,7 @@ export default function Pago() {
         <span className="slabel">Cómo quieres recibir tu pedido</span>
         <div className="pm-grid" style={{marginBottom:"1.2rem"}}>
           <div className={`pm${tipoEntrega === "domicilio" ? " sel" : ""}`} onClick={() => setTipoEntrega("domicilio")}>
-            <div className="pm-icon">🚴</div>
+            <div className="pm-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--g700)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
             <div className="pm-info">
               <strong>Domicilio a tu dirección</strong>
               <span>Te lo llevamos donde estés. Costo adicional de {fmt(DOM)}.</span>
@@ -503,7 +503,7 @@ export default function Pago() {
             <div className="pm-radio">{tipoEntrega === "domicilio" ? "✓" : ""}</div>
           </div>
           <div className={`pm${tipoEntrega === "recogida" ? " sel" : ""}`} onClick={() => setTipoEntrega("recogida")}>
-            <div className="pm-icon">🏪</div>
+            <div className="pm-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--g700)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
             <div className="pm-info">
               <strong>Recoger en tienda / Comer aquí</strong>
               <span>Ven a Pepas Coffee y recoge tu pedido. Sin costo de domicilio.</span>
@@ -558,7 +558,7 @@ export default function Pago() {
         <span className="slabel">Forma de pago</span>
         <div className="pm-grid">
           <div className={`pm${payMethod === "efectivo" ? " sel" : ""}`} onClick={() => setPayMethod("efectivo")}>
-            <div className="pm-icon">💵</div>
+            <div className="pm-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--g700)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 9v6M10 10h3a1 1 0 0 1 0 2h-2a1 1 0 0 0 0 2h3"/></svg></div>
             <div className="pm-info">
               <strong>Contraentrega en efectivo</strong>
               <span>Pagas al domiciliario cuando llegue tu pedido.</span>
@@ -566,7 +566,7 @@ export default function Pago() {
             <div className="pm-radio">{payMethod === "efectivo" ? "✓" : ""}</div>
           </div>
           <div className={`pm${payMethod === "wompi" ? " sel" : ""}`} onClick={() => setPayMethod("wompi")}>
-            <div className="pm-icon">💳</div>
+            <div className="pm-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--g700)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg></div>
             <div className="pm-info">
               <strong>Pago en transferencia</strong>
               <span>Paga en línea con tarjeta, PSE o Nequi mediante Wompi.</span>
@@ -579,30 +579,30 @@ export default function Pago() {
         {/* Panel contraentrega */}
         {payMethod === "efectivo" && (
           <div className="extra-panel show">
-            <strong>✅ ¿Cómo funciona?</strong>
+            <strong>¿Cómo funciona?</strong>
             <ul>
               <li>Confirmas tu pedido desde esta página</li>
               <li>Preparamos y despachamos tu bowl</li>
               <li>Pagas en efectivo al domiciliario</li>
-              <li>¡Disfruta! 🥗</li>
+              <li>¡Disfruta!</li>
             </ul>
           </div>
         )}
 
-        {/* Panel Wompi */}
+        {/* Panel Wompi */
         {payMethod === "wompi" && (
           <div className="extra-panel show">
-            <strong>💳 Pago seguro en línea</strong>
+            <strong>Pago seguro en línea</strong>
             <ul>
               <li>Serás redirigido a la plataforma de pagos Wompi</li>
               <li>Puedes pagar con tarjeta débito/crédito, PSE o Nequi</li>
               <li>Una vez confirmado el pago, tu pedido entra al sistema</li>
-              <li>¡Disfruta! 🥗</li>
+              <li>¡Disfruta!</li>
             </ul>
           </div>
         )}
 
-        {/* CTA */}
+        {/* CTA */
         <div>
           {payMethod === "efectivo" ? (
             <button className="btn-card" onClick={handleConfirm} disabled={isSubmitting}>
@@ -610,7 +610,7 @@ export default function Pago() {
             </button>
           ) : (
             <button className="btn-wompi" onClick={handleWompiPay} disabled={isSubmitting}>
-              {isSubmitting ? "Redirigiendo..." : "💳 Pagar con transferencia"}
+              {isSubmitting ? "Redirigiendo..." : "Pagar con transferencia"}
             </button>
           )}
           <p className="fine">Al confirmar, el pedido se guarda directamente en el sistema para que aparezca en administración.</p>
