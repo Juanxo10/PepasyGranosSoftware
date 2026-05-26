@@ -70,6 +70,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:va
 .btag.bev{background:#e8f0fe;color:#3730a3;}
 .btag.caf{background:#fdf0ff;color:#6b21a8;}
 .btag.inc{background:#d4ead4;color:#2D4A2F;font-weight:700;}
+.btag.carbo{background:#e8f5e9;border:1.5px solid #4A7C59;color:#2D4A2F;font-weight:700;}
 .addr-row{display:flex;align-items:flex-start;gap:.5rem;margin-bottom:.85rem;}
 .addr-icon{font-size:.95rem;flex-shrink:0;margin-top:.05rem;}
 .addr-text{font-size:.8rem;color:var(--text);line-height:1.5;}
@@ -1069,6 +1070,7 @@ export default function Admin() {
                         <div key={i} className="bowl-item">
                           <div className="bowl-item-title">Bowl {i + 1} · {b.base}</div>
                           <div className="bowl-tags">
+                            {b.base && <span className="btag carbo">{b.base}</span>}
                             {(b.incluidos || []).map((inc) => <span key={inc} className="btag inc">{inc}</span>)}
                             {groupItems(b.toppings).map(({name,count}) => <span key={name} className="btag topping">{count > 1 ? `${name} x${count}` : name}</span>)}
                             {groupItems(b.proteinas).map(({name,count}) => <span key={name} className="btag prot">{count > 1 ? `${name} x${count}` : name}</span>)}
