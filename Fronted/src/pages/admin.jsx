@@ -1046,6 +1046,7 @@ export default function Admin() {
           ) : (
             filtered.map((o) => {
               const payIcon = o.pago.includes("efectivo") ? "Efectivo" : o.pago.includes("Nequi") ? "Nequi" : "Tarjeta";
+              const pagoLabel = (o.tipo_entrega === "recogida" && o.pago.includes("efectivo")) ? "Pagar en caja" : o.pago;
               return (
                 <div key={o.id} className="order-card">
                   <div className="oc-head">
@@ -1100,7 +1101,7 @@ export default function Admin() {
                         }
                       </div>
                     </div>
-                    <span className="pay-tag">{payIcon} {o.pago}</span>
+                    <span className="pay-tag">{payIcon} {pagoLabel}</span>
                   </div>
                   <div className="oc-footer">
                     <div>
@@ -1175,6 +1176,7 @@ export default function Admin() {
               <div className="orders-grid">
                 {histByDate[dateKey].map((o) => {
                   const payIcon = o.pago.includes("efectivo") ? "Efectivo" : o.pago.includes("Nequi") ? "Nequi" : "Tarjeta";
+                  const pagoLabel = (o.tipo_entrega === "recogida" && o.pago.includes("efectivo")) ? "Pagar en caja" : o.pago;
                   return (
                     <div key={o.id} className="order-card">
                       <div className="oc-head">
@@ -1229,7 +1231,7 @@ export default function Admin() {
                             }
                           </div>
                         </div>
-                        <span className="pay-tag">{payIcon} {o.pago}</span>
+                        <span className="pay-tag">{payIcon} {pagoLabel}</span>
                       </div>
                       <div className="oc-footer">
                         <div>
