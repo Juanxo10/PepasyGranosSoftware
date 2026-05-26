@@ -52,7 +52,7 @@ const PROTEINAS_PRECIOS = {
 };
 
 const BOWL_BASE = 12000;
-const TOPPING_EXTRA = 3000;
+const TOPPING_EXTRA = 2000;
 const TOPPINGS_GRATIS = 4;
 const CAJA = 1000;
 const VASO = 1000;

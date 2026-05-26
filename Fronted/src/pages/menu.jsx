@@ -24,7 +24,7 @@ const PROTEINAS = [
 const BEBIDAS = ["Limonada", "Agua y limón"];
 
 const BOWL_BASE = 12000;
-const TOPPING_EXTRA = 3000;
+const TOPPING_EXTRA = 2000;
 const CAJA = 1000;
 const VASO = 1000;
 const DOM = 6000;
