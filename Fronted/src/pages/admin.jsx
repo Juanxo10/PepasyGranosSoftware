@@ -861,53 +861,67 @@ export default function Admin() {
       return Object.entries(c).map(([n, cnt]) => cnt > 1 ? `${n} x${cnt}` : n).join(", ");
     };
     const bowlRows = o.bowls.map((b, i) => {
-      const parts = [];
-      if (b.base) parts.push(`<span class="carbo">${b.base}</span>`);
-      (b.incluidos || []).forEach(x => parts.push(`<span class="inc">${x}</span>`));
-      grp(b.toppings).split(", ").filter(Boolean).forEach(x => parts.push(`<span class="tag">${x}</span>`));
-      grp(b.proteinas).split(", ").filter(Boolean).forEach(x => parts.push(`<span class="prot">${x}</span>`));
-      if (b.bebida) parts.push(`<span class="bev">${b.bebida}</span>`);
-      if (b.caja > 0) parts.push(`<span class="extra">Caja +${fmt(b.caja)}</span>`);
-      if (b.vaso > 0) parts.push(`<span class="extra">Vaso +${fmt(b.vaso)}</span>`);
-      return `<div class="bowl"><div class="bowl-num">Bowl ${i + 1}</div><div class="tags">${parts.join("")}</div></div>`;
+      const allIngredients = [];
+      if (b.base) allIngredients.push(`<b>${b.base.toUpperCase()}</b>`);
+      (b.incluidos || []).forEach(x => allIngredients.push(x));
+      grp(b.toppings).split(", ").filter(Boolean).forEach(x => allIngredients.push(x));
+      grp(b.proteinas).split(", ").filter(Boolean).forEach(x => allIngredients.push(`<b>${x}</b>`));
+      if (b.bebida) allIngredients.push(`Bebida: ${b.bebida}`);
+      if (b.caja > 0) allIngredients.push(`Caja`);
+      if (b.vaso > 0) allIngredients.push(`Vaso`);
+      return `<div class="bowl"><div class="bowl-num">&#9632; BOWL ${i + 1}</div><div class="ingredients">${allIngredients.join(" &nbsp;|&nbsp; ")}</div></div>`;
     }).join("");
     const extras = Object.keys(o.extraItems || {}).length
-      ? `<div class="section-lbl">Productos cafetería</div><div class="bowl"><div class="tags">${Object.entries(o.extraItems).map(([n,q]) => `<span class="tag">${n} ×${q}</span>`).join("")}</div></div>`
+      ? `<div class="divider"></div><div class="section-lbl">PRODUCTOS ADICIONALES</div><div class="extra-list">${Object.entries(o.extraItems).map(([n,q]) => `<div class="extra-row"><span>${n}</span><span>x${q}</span></div>`).join("")}</div>`
       : "";
     const entrega = o.tipo_entrega === "recogida"
-      ? `<div class="addr">Recogida en tienda / Come aquí</div>`
-      : `<div class="addr">${o.addr}, ${o.barrio}${o.ref ? `<br/><span class="ref">${o.ref}</span>` : ""}</div>`;
+      ? `<div class="addr-type">&#9632; RECOGE EN TIENDA</div>`
+      : `<div class="addr-type">&#9632; DOMICILIO</div><div class="addr-text">${o.addr}, ${o.barrio}${o.ref ? `<br>${o.ref}` : ""}</div>`;
     const now = new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+    const date = new Date().toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric" });
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Pedido #${o.id}</title><style>
       *{margin:0;padding:0;box-sizing:border-box;}
-      body{font-family:'Courier New',monospace;font-size:15px;color:#000;padding:10px;width:72mm;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-      .header{text-align:center;border-bottom:3px solid #000;padding-bottom:8px;margin-bottom:8px;}
-      .brand{font-size:20px;font-weight:bold;letter-spacing:2px;}
-      .sub{font-size:11px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
-      .hora{font-size:13px;font-weight:bold;margin-top:5px;}
-      .client{margin-bottom:8px;border-bottom:2px dashed #000;padding-bottom:6px;}
-      .client-name{font-size:16px;font-weight:bold;}
-      .client-tel{font-size:13px;font-weight:bold;}
-      .section-lbl{font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid #000;margin:8px 0 4px;padding-bottom:2px;}
-      .bowl{border:2px solid #000;padding:6px 7px;margin-bottom:6px;}
-      .bowl-num{font-weight:bold;font-size:14px;margin-bottom:4px;border-bottom:1px dashed #000;padding-bottom:3px;}
-      .tags{display:flex;flex-wrap:wrap;gap:3px;}
-      span{display:inline-block;padding:2px 6px;font-size:12px;font-weight:bold;border:2px solid #000;}
-      .carbo{text-decoration:underline;}
-      .prot{border-width:3px;}
-      .entrega{border-top:2px dashed #000;margin-top:8px;padding-top:6px;}
-      .addr{font-size:14px;font-weight:bold;margin-top:3px;}
-      .ref{font-size:12px;}
-      .total{border-top:3px solid #000;margin-top:10px;padding-top:6px;text-align:right;font-size:18px;font-weight:bold;}
-      @media print{body{width:auto;}@page{margin:4mm;}}
+      body{font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#000;padding:8px;width:72mm;background:#fff;}
+      .header{text-align:center;padding-bottom:10px;margin-bottom:10px;border-bottom:3px double #000;}
+      .brand{font-size:22px;font-weight:900;letter-spacing:3px;text-transform:uppercase;}
+      .sub{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-top:2px;}
+      .meta{font-size:12px;margin-top:6px;line-height:1.6;}
+      .pedido-num{font-size:17px;font-weight:900;margin-top:4px;}
+      .client-block{margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #000;}
+      .client-name{font-size:16px;font-weight:900;text-transform:uppercase;line-height:1.3;}
+      .client-tel{font-size:13px;font-weight:700;margin-top:2px;}
+      .section-lbl{font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase;margin:10px 0 5px;}
+      .bowl{border:2px solid #000;padding:7px 9px;margin-bottom:7px;}
+      .bowl-num{font-size:13px;font-weight:900;letter-spacing:1px;margin-bottom:5px;padding-bottom:4px;border-bottom:1px solid #000;}
+      .ingredients{font-size:13px;line-height:1.8;}
+      .extra-list{border:2px solid #000;padding:6px 9px;}
+      .extra-row{display:flex;justify-content:space-between;font-size:13px;font-weight:700;padding:2px 0;border-bottom:1px dashed #000;}
+      .extra-row:last-child{border-bottom:none;}
+      .entrega-block{margin-top:10px;padding-top:8px;border-top:2px solid #000;}
+      .addr-type{font-size:13px;font-weight:900;margin-bottom:3px;}
+      .addr-text{font-size:13px;font-weight:700;line-height:1.6;}
+      .total-block{margin-top:10px;padding-top:8px;border-top:3px double #000;display:flex;justify-content:space-between;align-items:baseline;}
+      .total-lbl{font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;}
+      .total-val{font-size:20px;font-weight:900;}
+      .divider{border-top:1px dashed #000;margin:8px 0;}
+      @media print{body{width:auto;}@page{margin:3mm;size:72mm auto;}}
     </style></head><body>
-      <div class="header"><div class="brand">PEPAS COFFEE</div><div class="sub">Ticket de cocina</div><div class="hora">${now} &mdash; Pedido #${o.id}</div></div>
-      <div class="client"><div class="client-name">${o.nombre}</div><div class="client-tel">${o.tel}</div></div>
-      <div class="section-lbl">Bowls</div>${bowlRows}${extras}
-      <div class="entrega"><div class="section-lbl">Entrega</div>${entrega}</div>
-      <div class="total">${fmt(o.total)}</div>
+      <div class="header">
+        <div class="brand">Pepas Coffee</div>
+        <div class="sub">Ticket de cocina</div>
+        <div class="meta">${date} &nbsp;&#9679;&nbsp; ${now}</div>
+        <div class="pedido-num">Pedido #${o.id}</div>
+      </div>
+      <div class="client-block">
+        <div class="client-name">${o.nombre}</div>
+        <div class="client-tel">${o.tel}</div>
+      </div>
+      <div class="section-lbl">Bowls</div>
+      ${bowlRows}${extras}
+      <div class="entrega-block">${entrega}</div>
+      <div class="total-block"><span class="total-lbl">Total</span><span class="total-val">${fmt(o.total)}</span></div>
     </body></html>`;
-    const w = window.open("", "_blank", "width=400,height=600");
+    const w = window.open("", "_blank", "width=420,height=650");
     w.document.write(html);
     w.document.close();
     w.focus();
