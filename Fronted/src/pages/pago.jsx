@@ -48,7 +48,7 @@ const LECHE_ALMENDRAS = 2500;
 
 const PROTEINAS_PRECIOS = {
   "Pollo": 8500, "Atún": 8500, "Carne molida": 6500,
-  "Falafel": 5000, "Huevo": 4000, "Lomo de res": 8500, "Cerdo": 8500,
+  "Falafel": 5000, "Huevo": 4000, "Lomo de res": 10000, "Cerdo": 8500,
 };
 
 const BOWL_BASE = 12000;
