@@ -17,7 +17,7 @@ const PROTEINAS = [
   { name: "Carne molida", price: 6500 },
   { name: "Falafel",     price: 5000 },
   { name: "Huevo",       price: 4000 },
-  { name: "Lomo de res", price: 8500 },
+  { name: "Lomo de res", price: 10000 },
   { name: "Cerdo",       price: 8500 },
 ];
 
