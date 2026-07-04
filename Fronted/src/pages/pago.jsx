@@ -2,67 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/image.png";
 import { API_URL } from "../config";
+import {
+  ALL_EXTRAS, FRAPPES_NAMES, LECHE_ALMENDRAS, CAJA, VASO, DOM, calcBowlPrice,
+} from "../data/menuData";
 
-const CAFETERIA_NOMBRES = [
-  "Pizzeta pesto", "Pizzeta carne", "Picada especial", "Sopa de tomate",
-  "Emparedado de lomo", "Choripan", "Emparedado integral", "Emparedado de cerdo",
-  "Emparedado de huevo", "Emparedado de salami",
-  "Criollito", "Hayaca", "Wraps de espinaca", "Wraps de cerdo", "Desayuno Llanero",
-  "Omelet Opción 1", "Omelet Opción 2", "Omelet Opción 3",
-  "Montadito de huevo", "Montadito napolitano", "Montadito de carne",
-  "Bowl de yogurt", "Mini bowl de yogurt", "Bowl de avena",
-  "Bowl de açaí", "Cuchareable de açaí", "Fruta fresca",
-  "Soda Hatsu", "Colombiano", "Acacireño", "Capuchino",
-  "Hayaca + Chocolate", "Hayaca + Capuchino", "Hayaca + Aguapanela", "Hayaca + Colombiano",
-  "Combo chocolate", "Combo aguapanela",
-  "Croissant jamón y queso + capuchino", "Croissant arequipe + capuchino",
-  "Batido Guayuriba", "Batido Corocora", "Batido Sardinata",
-  "Frappe de café", "Frappe mocca", "Frappe arequipe", "Frappe baileys",
-  "Frappe té chai", "Caños cristales", "Caños negros", "Macarena",
-];
-
-const CAFETERIA_PRECIOS = {
-  "Pizzeta pesto": 31000, "Pizzeta carne": 31000, "Picada especial": 52200, "Sopa de tomate": 24000,
-  "Emparedado de lomo": 25000, "Choripan": 20500, "Emparedado integral": 26500,
-  "Emparedado de cerdo": 24000, "Emparedado de huevo": 21000, "Emparedado de salami": 21000,
-  "Criollito": 22800, "Hayaca": 17500, "Wraps de espinaca": 17300,
-  "Wraps de cerdo": 27500, "Desayuno Llanero": 14800,
-  "Omelet Opción 1": 18800, "Omelet Opción 2": 18800, "Omelet Opción 3": 18800,
-  "Montadito de huevo": 12500, "Montadito napolitano": 17200, "Montadito de carne": 15000,
-  "Bowl de yogurt": 23000, "Mini bowl de yogurt": 16500, "Bowl de avena": 16000,
-  "Bowl de açaí": 23000, "Cuchareable de açaí": 16000, "Fruta fresca": 14200,
-  "Soda Hatsu": 8000, "Colombiano": 5900, "Acacireño": 6600, "Capuchino": 8200,
-  "Hayaca + Chocolate": 24000, "Hayaca + Capuchino": 24000, "Hayaca + Aguapanela": 24000, "Hayaca + Colombiano": 24000,
-  "Combo chocolate": 14800, "Combo aguapanela": 12500,
-  "Croissant jamón y queso + capuchino": 17500, "Croissant arequipe + capuchino": 15000,
-  "Batido Guayuriba": 12500, "Batido Corocora": 12500, "Batido Sardinata": 12500,
-  "Frappe de café": 18000, "Frappe mocca": 18000, "Frappe arequipe": 18000, "Frappe baileys": 22300,
-  "Frappe té chai": 18000, "Caños cristales": 18000, "Caños negros": 18000, "Macarena": 18000,
-};
-
-const FRAPPES_NOMBRES = new Set([
-  "Frappe de café", "Frappe mocca", "Frappe arequipe", "Frappe baileys",
-  "Frappe té chai", "Caños cristales", "Caños negros", "Macarena",
-]);
-const LECHE_ALMENDRAS = 2500;
-
-const PROTEINAS_PRECIOS = {
-  "Pollo": 8500, "Atún": 8500, "Carne molida": 6500,
-  "Falafel": 5000, "Huevo": 4000, "Lomo de res": 10000, "Cerdo": 8500,
-};
-
-const BOWL_BASE = 12000;
-const TOPPING_EXTRA = 2000;
-const TOPPINGS_GRATIS = 4;
-const CAJA = 1000;
-const VASO = 1000;
-const DOM = 6000;
-
-const calcBowlPrice = (tops = [], prots = [], bev = null) => {
-  const toppingsCost = Math.max(0, tops.length - TOPPINGS_GRATIS) * TOPPING_EXTRA;
-  const protsCost = prots.reduce((s, p) => s + (PROTEINAS_PRECIOS[typeof p === "string" ? p : p?.name] ?? 0), 0);
-  return BOWL_BASE + toppingsCost + protsCost + CAJA + (bev ? VASO : 0);
-};
+// Precio de cada adicional derivado de la misma fuente que usa menu.jsx,
+// para que nunca queden desincronizados (bug: productos nuevos cobrándose $0).
+const CAFETERIA_PRECIOS = Object.fromEntries(ALL_EXTRAS.map((it) => [it.name, it.price]));
+const FRAPPES_NOMBRES = FRAPPES_NAMES;
 
 const fmt = (n) => "$" + Number(n).toLocaleString("es-CO");
 
@@ -187,8 +134,8 @@ export default function Pago() {
   const extraItems = orderData?.extraItems || {};
   const frappesAlmond = orderData?.frappesAlmond || {};
 
-  const extrasSubtotal = CAFETERIA_NOMBRES.reduce((s, n) => {
-    const qty = extraItems[n] || 0;
+  const extrasSubtotal = Object.entries(extraItems).reduce((s, [n, qty]) => {
+    if (!qty) return s;
     const almondExtra = (FRAPPES_NOMBRES.has(n) && frappesAlmond[n]) ? LECHE_ALMENDRAS * qty : 0;
     return s + (CAFETERIA_PRECIOS[n] ?? 0) * qty + almondExtra;
   }, 0);
@@ -470,7 +417,7 @@ export default function Pago() {
                 )}
               </div>
             ))}
-            {CAFETERIA_NOMBRES.filter((nombre) => (extraItems[nombre] || 0) > 0).map((nombre) => {
+            {Object.keys(extraItems).filter((nombre) => (extraItems[nombre] || 0) > 0).map((nombre) => {
               const qty = extraItems[nombre];
               const almondExtra = (FRAPPES_NOMBRES.has(nombre) && frappesAlmond[nombre]) ? LECHE_ALMENDRAS * qty : 0;
               return (
