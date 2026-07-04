@@ -40,7 +40,7 @@ INSERT INTO productos (nombre, tipo, precio) VALUES
   ('Carne molida', 'proteina', 6500),
   ('Falafel',      'proteina', 5000),
   ('Huevo',        'proteina', 4000),
-  ('Lomo de res',  'proteina', 8500),
+  ('Lomo de res',  'proteina', 10000),
   ('Cerdo',        'proteina', 8500);
 
 -- Bebidas
@@ -115,3 +115,63 @@ INSERT INTO productos (nombre, tipo, precio) VALUES
   ('Combo aguapanela',                      'extra', 12500),
   ('Croissant jamón y queso + capuchino',   'extra', 17500),
   ('Croissant arequipe + capuchino',        'extra', 15000);
+
+-- Nuevos productos (jul 2026) — precios de lista + $1.000
+INSERT INTO productos (nombre, tipo, precio) VALUES
+  ('Bowl salado',                          'extra', 24000),
+  ('Batido Açaí',                          'extra', 14000),
+  ('Hayaca + bebida',                      'extra', 24000),
+  -- Café
+  ('Espresso',                             'extra', 6300),
+  ('Espresso doble',                       'extra', 7700),
+  ('CapuChai',                             'extra', 12500),
+  ('Capuchino saborizado',                 'extra', 11700),
+  ('Mocaccino',                            'extra', 11800),
+  ('Capuchino Baileys',                    'extra', 16200),
+  ('Latte',                                'extra', 9700),
+  ('Café Irlandés',                        'extra', 19400),
+  ('Carajillo',                            'extra', 11400),
+  -- Métodos de preparación
+  ('Prensa / Dripper / Chemex (1 taza)',   'extra', 10000),
+  ('Prensa / Dripper / Chemex (2 tazas)',  'extra', 18000),
+  ('Prensa / Dripper / Chemex (3 tazas)',  'extra', 25000),
+  -- Bebidas calientes sin café
+  ('Chocolate llanero',                    'extra', 11400),
+  ('Chúcula',                              'extra', 11400),
+  ('Infusiones en tisana',                 'extra', 6800),
+  ('Infusión de la casa',                  'extra', 9000),
+  ('Aguapanela',                           'extra', 7000),
+  ('Té carbón activado',                   'extra', 11400),
+  ('Té azul relajante',                    'extra', 11400),
+  ('Té matcha',                            'extra', 11400),
+  ('Té chai',                              'extra', 11400),
+  ('Té leche dorada',                      'extra', 11400),
+  -- Bebidas frías con café
+  ('Café acacireño frío',                  'extra', 10000),
+  ('Vencejo llanero',                      'extra', 12500),
+  ('Latte frío',                           'extra', 11000),
+  ('Latte frío Baileys',                   'extra', 17800),
+  ('Affogato llanero',                     'extra', 16500),
+  ('Limonada de café',                     'extra', 12500),
+  -- Bebidas frías sin café
+  ('Alborada llanera',                     'extra', 12500),
+  ('Vespertina llanera',                   'extra', 12500),
+  ('Puesta del sol',                       'extra', 13600),
+  ('Sol naciente',                         'extra', 14500),
+  ('Cuarzo',                               'extra', 12500),
+  ('Flor de jamaica',                      'extra', 9700),
+  ('Aguapanela fría',                      'extra', 7000),
+  -- Pastelería y postres
+  ('Copa de helado',                       'extra', 12500),
+  ('Helado con fruta',                     'extra', 17600),
+  ('Brownie con helado',                   'extra', 19000),
+  -- Hojaldres
+  ('Croissant de jamón y queso',           'extra', 12500),
+  ('Croissant de arequipe',                'extra', 9000),
+  ('Croissant de paté de pollo',           'extra', 12500),
+  -- Vinos y cócteles
+  ('Espresso Martini',                     'extra', 22000),
+  ('Campari Spritz',                       'extra', 24000),
+  ('Mexican Mule',                         'extra', 25000),
+  ('Vino de verano',                       'extra', 16000),
+  ('Copa de vino',                         'extra', 12500);
