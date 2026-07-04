@@ -175,3 +175,10 @@ INSERT INTO productos (nombre, tipo, precio) VALUES
   ('Mexican Mule',                         'extra', 25000),
   ('Vino de verano',                       'extra', 16000),
   ('Copa de vino',                         'extra', 12500);
+
+-- Nuevos productos (jul 2026, parte 2)
+-- 'Hayaca' generico queda reemplazado por las 2 variantes de abajo (desactivado en DB, no se borra)
+INSERT INTO productos (nombre, tipo, precio) VALUES
+  ('Croburger',            'extra', 26000),
+  ('Hayaca tradicional',   'extra', 17500),
+  ('Hayaca picante',       'extra', 17500);

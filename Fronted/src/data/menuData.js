@@ -60,10 +60,12 @@ export const CAFETERIA = [
     { name: "Emparedado de cerdo", price: 24000 },
     { name: "Emparedado de huevo", price: 21000 },
     { name: "Emparedado de salami", price: 21000 },
+    { name: "Croburger", price: 26000 },
   ]},
   { cat: "Desayunos", items: [
     { name: "Criollito", price: 22800 },
-    { name: "Hayaca", price: 17500 },
+    { name: "Hayaca tradicional", price: 17500 },
+    { name: "Hayaca picante", price: 17500 },
     { name: "Wraps de espinaca", price: 17300 },
     { name: "Wraps de cerdo", price: 27500 },
     { name: "Desayuno Llanero", price: 14800 },
