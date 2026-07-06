@@ -131,10 +131,6 @@ INSERT INTO productos (nombre, tipo, precio) VALUES
   ('Latte',                                'extra', 9700),
   ('Café Irlandés',                        'extra', 19400),
   ('Carajillo',                            'extra', 11400),
-  -- Métodos de preparación
-  ('Prensa / Dripper / Chemex (1 taza)',   'extra', 10000),
-  ('Prensa / Dripper / Chemex (2 tazas)',  'extra', 18000),
-  ('Prensa / Dripper / Chemex (3 tazas)',  'extra', 25000),
   -- Bebidas calientes sin café
   ('Chocolate llanero',                    'extra', 11400),
   ('Chúcula',                              'extra', 11400),
@@ -161,10 +157,6 @@ INSERT INTO productos (nombre, tipo, precio) VALUES
   ('Cuarzo',                               'extra', 12500),
   ('Flor de jamaica',                      'extra', 9700),
   ('Aguapanela fría',                      'extra', 7000),
-  -- Pastelería y postres
-  ('Copa de helado',                       'extra', 12500),
-  ('Helado con fruta',                     'extra', 17600),
-  ('Brownie con helado',                   'extra', 19000),
   -- Hojaldres
   ('Croissant de jamón y queso',           'extra', 12500),
   ('Croissant de arequipe',                'extra', 9000),

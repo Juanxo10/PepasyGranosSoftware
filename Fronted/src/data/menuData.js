@@ -132,11 +132,6 @@ export const CAFETERIA = [
     { name: "Café Irlandés", price: 19400 },
     { name: "Carajillo", price: 11400 },
   ]},
-  { cat: "Métodos de preparación", items: [
-    { name: "Prensa / Dripper / Chemex (1 taza)", price: 10000 },
-    { name: "Prensa / Dripper / Chemex (2 tazas)", price: 18000 },
-    { name: "Prensa / Dripper / Chemex (3 tazas)", price: 25000 },
-  ]},
   { cat: "Bebidas calientes sin café", items: [
     { name: "Chocolate llanero", price: 11400 },
     { name: "Chúcula", price: 11400 },
@@ -165,11 +160,6 @@ export const CAFETERIA = [
     { name: "Cuarzo", price: 12500 },
     { name: "Flor de jamaica", price: 9700 },
     { name: "Aguapanela fría", price: 7000 },
-  ]},
-  { cat: "Pastelería y postres", items: [
-    { name: "Copa de helado", price: 12500 },
-    { name: "Helado con fruta", price: 17600 },
-    { name: "Brownie con helado", price: 19000 },
   ]},
   { cat: "Hojaldres", items: [
     { name: "Croissant de jamón y queso", price: 12500 },
