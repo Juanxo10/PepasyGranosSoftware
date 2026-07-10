@@ -23,7 +23,7 @@ export const PROTEINAS = [
 export const BEBIDAS = ["Limonada", "Agua y limón"];
 
 export const BOWL_BASE = 12000;
-export const TOPPING_EXTRA = 2000;
+export const TOPPING_EXTRA = 3000;
 export const TOPPINGS_GRATIS = 4;
 export const CAJA = 1000;
 export const VASO = 1000;
