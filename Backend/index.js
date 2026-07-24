@@ -27,8 +27,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// ─── Wompi webhook necesita raw body → lo maneja internamente con express.raw() ──
-// Registrar DESPUÉS de express.json() para que integrity-hash reciba el body
+// ─── Wompi webhook necesita el body crudo para verificar la firma ───────────
+// Debe montarse ANTES del parser JSON global: si no, express.json() ya
+// consume el body y el webhook nunca puede leerlo (siempre falla).
+app.use("/api/wompi/webhook", express.raw({ type: "application/json" }));
 app.use(express.json({ limit: "1mb" }));
 
 // ─── Trust proxy (necesario para rate-limit detrás de reverse proxy / HTTPS) ─
