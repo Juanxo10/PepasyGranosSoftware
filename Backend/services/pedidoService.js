@@ -303,6 +303,7 @@ async function listarPedidos() {
       pago: p.metodo_pago,
       tipo_entrega: p.tipo_entrega || "domicilio",
       status: p.estado,
+      estado_pago: p.estado_pago,
       subtotal: p.subtotal,
       domicilio: p.domicilio,
       total: p.total,

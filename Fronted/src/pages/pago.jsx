@@ -239,6 +239,7 @@ export default function Pago() {
         bowls,
         extraItems,
         cliente: payload.cliente,
+        metodo_pago: payload.metodo_pago,
       };
 
       try {
@@ -310,6 +311,7 @@ export default function Pago() {
         bowls,
         extraItems,
         cliente: payload.cliente,
+        metodo_pago: payload.metodo_pago,
       };
 
       try {

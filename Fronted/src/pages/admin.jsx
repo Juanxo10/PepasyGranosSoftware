@@ -10,8 +10,11 @@ const fmtHora = (d) =>
 const initials = (name) =>
   name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
-const statusLabel = (s) =>
-  ({ nuevo: "Nuevo", preparando: "Preparando", camino: "En camino", entregado: "Entregado", cancelado: "Cancelado" }[s] || s);
+const statusLabel = (s, estadoPago) => {
+  // Un pedido "cancelado" por pago rechazado no es lo mismo que uno cancelado manualmente por el staff
+  if (s === "cancelado" && (estadoPago === "rechazado" || estadoPago === "error")) return "Rechazado";
+  return { nuevo: "Nuevo", preparando: "Preparando", camino: "En camino", entregado: "Entregado", cancelado: "Cancelado" }[s] || s;
+};
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -1129,7 +1132,7 @@ export default function Admin() {
                     <div className="oc-num">
                       Pedido #{o.id} <span className="order-seq">{fmtHora(o.hora)}</span>
                     </div>
-                    <span className={`status-badge ${o.status}`}>{statusLabel(o.status)}</span>
+                    <span className={`status-badge ${o.status}`}>{statusLabel(o.status, o.estado_pago)}</span>
                   </div>
                   <div className="oc-body">
                     <div className="oc-client">
@@ -1212,7 +1215,9 @@ export default function Admin() {
                         </>
                       )}
                       {o.status === "cancelado" && (
-                        <span className="done-text">Pedido cancelado</span>
+                        <span className="done-text">
+                          {o.estado_pago === "rechazado" || o.estado_pago === "error" ? "Pago rechazado" : "Pedido cancelado"}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -1261,7 +1266,7 @@ export default function Admin() {
                         <div className="oc-num">
                           Pedido #{o.id} <span className="order-seq">{fmtHora(o.hora)}</span>
                         </div>
-                        <span className={`status-badge ${o.status}`}>{statusLabel(o.status)}</span>
+                        <span className={`status-badge ${o.status}`}>{statusLabel(o.status, o.estado_pago)}</span>
                       </div>
                       <div className="oc-body">
                         <div className="oc-client">
@@ -1318,7 +1323,7 @@ export default function Admin() {
                           <div className="price-sub">{o.bowls.length} bowl{o.bowls.length !== 1 ? "s" : ""}{Object.keys(o.extraItems || {}).length > 0 ? " + productos" : ""}{o.tipo_entrega === "recogida" ? " · recogida" : " + domicilio"}</div>
                         </div>
                         <div className="footer-actions">
-                          <span className="done-text">{statusLabel(o.status)}</span>
+                          <span className="done-text">{statusLabel(o.status, o.estado_pago)}</span>
                           {(o.status === "camino" || o.status === "entregado") && (
                             <button className="action-btn btn-wa" onClick={() => sendWA(o, o.status)}>WhatsApp</button>
                           )}

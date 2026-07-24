@@ -122,7 +122,12 @@ router.post("/integrity-hash", (req, res) => {
 router.get("/verificar/:transactionId", async (req, res) => {
   const { transactionId } = req.params;
   try {
-    const r = await fetch(`https://sandbox.wompi.co/v1/transactions/${transactionId}`);
+    // Usar producción o sandbox según el tipo de llave privada configurada
+    const privateKey = process.env.WOMPI_PRIVATE_KEY || "";
+    const baseUrl = privateKey.startsWith("prv_prod")
+      ? "https://production.wompi.co/v1"
+      : "https://sandbox.wompi.co/v1";
+    const r = await fetch(`${baseUrl}/transactions/${transactionId}`);
     if (!r.ok) return res.status(502).json({ error: "No se pudo consultar Wompi" });
     const data = await r.json();
     const tx = data?.data;

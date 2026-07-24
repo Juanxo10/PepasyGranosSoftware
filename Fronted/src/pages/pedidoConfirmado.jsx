@@ -55,32 +55,57 @@ export default function PedidoConfirmado() {
   const location = useLocation();
   const navigate = useNavigate();
   const [order, setOrder] = useState(() => location.state?.order ?? null);
+  // Estado real del pago Wompi: "aprobado" | "pendiente" | "rechazado" | "error" | null (no aplica, ej. contraentrega)
+  const [paymentStatus, setPaymentStatus] = useState(null);
 
   useEffect(() => {
-    // Si Wompi redirigió aquí con ?id=TX_ID, verificar el pago
-    const params = new URLSearchParams(window.location.search);
-    const txId = params.get("id");
-    if (txId) {
-      fetch(`${API_URL}/api/wompi/verificar/${txId}`)
-        .catch(() => {});
+    let ord = location.state?.order ?? null;
+    if (!ord) {
+      try {
+        const raw = sessionStorage.getItem("pepas_last_order");
+        if (raw) ord = JSON.parse(raw);
+      } catch (_) {
+        // noop
+      }
     }
 
-    if (location.state?.order) {
-      setOrder(location.state.order);
+    if (!ord) {
+      navigate("/menu", { replace: true });
+      return;
+    }
+    setOrder(ord);
+
+    // Pagos contraentrega no requieren verificación: se confirman al crear el pedido
+    if (ord.metodo_pago !== "Transferencia Wompi") {
+      setPaymentStatus("aprobado");
       return;
     }
 
-    try {
-      const raw = sessionStorage.getItem("pepas_last_order");
-      if (raw) {
-        setOrder(JSON.parse(raw));
-        return;
-      }
-    } catch (_) {
-      // noop
+    // Wompi: hay que confirmar con la API real si el pago fue aprobado o rechazado
+    // antes de mostrar "pedido confirmado" — Wompi redirige aquí sin importar el resultado.
+    const params = new URLSearchParams(window.location.search);
+    const txId = params.get("id");
+    if (!txId) {
+      setPaymentStatus("pendiente");
+      return;
     }
 
-    navigate("/menu", { replace: true });
+    const verificar = () =>
+      fetch(`${API_URL}/api/wompi/verificar/${txId}`)
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((d) => d?.estadoPago || "pendiente")
+        .catch(() => "pendiente");
+
+    verificar().then((estado) => {
+      if (estado !== "pendiente") {
+        setPaymentStatus(estado);
+        return;
+      }
+      // El banco puede tardar unos segundos en confirmar la transferencia (PSE) — reintentar una vez
+      setTimeout(() => {
+        verificar().then(setPaymentStatus);
+      }, 4000);
+    });
   }, [location.state, navigate]);
 
   const extras = useMemo(() => Object.entries(order?.extraItems || {}).filter(([, quantity]) => quantity > 0), [order]);
@@ -88,6 +113,10 @@ export default function PedidoConfirmado() {
   if (!order) {
     return null;
   }
+
+  const metodoPagoLabel = order.metodo_pago === "Transferencia Wompi" ? "Transferencia Wompi" : "Contraentrega en efectivo";
+  const esRechazado = paymentStatus === "rechazado" || paymentStatus === "error";
+  const esPendiente = paymentStatus !== "aprobado" && !esRechazado;
 
   return (
     <>
@@ -103,19 +132,32 @@ export default function PedidoConfirmado() {
 
       <div className="wrap">
         <section className="hero">
-          <div className="eyebrow">Pedido confirmado</div>
+          <div className="eyebrow">{esRechazado ? "Pago rechazado" : esPendiente ? "Verificando pago" : "Pedido confirmado"}</div>
           <div className="hero-grid">
             <div>
-              <div className="confirm-chip">✓ Tu pedido salió correctamente</div>
-              <h1>Ya recibimos tu pedido.</h1>
+              <div
+                className="confirm-chip"
+                style={esRechazado ? { background: "#fbe6e6", color: "#8a2020", borderColor: "#f3caca" } : undefined}
+              >
+                {esRechazado
+                  ? "✕ Tu pago no fue aprobado"
+                  : esPendiente
+                  ? "⏳ Estamos confirmando tu pago"
+                  : "✓ Tu pedido salió correctamente"}
+              </div>
+              <h1>{esRechazado ? "Tu pedido no se pudo confirmar." : esPendiente ? "Casi listo…" : "Ya recibimos tu pedido."}</h1>
               <p>
-                Estamos preparando tu orden y pronto saldrá a entrega. Guarda este resumen para tener claro qué pediste y cuánto pagarás al recibirlo.
+                {esRechazado
+                  ? "Tu banco no autorizó la transferencia, así que el pedido quedó cancelado y no se realizó ningún cobro. Puedes volver al menú e intentarlo de nuevo."
+                  : esPendiente
+                  ? "Tu banco está confirmando la transferencia. Puede tardar unos minutos — si tarda mucho, escríbenos con tu número de pedido."
+                  : "Estamos preparando tu orden y pronto saldrá a entrega. Guarda este resumen para tener claro qué pediste y cuánto pagarás al recibirlo."}
               </p>
             </div>
-            <div className="amount-card">
-              <span>Total a pagar</span>
+            <div className="amount-card" style={esRechazado ? { background: "#5a2323" } : undefined}>
+              <span>{esRechazado ? "Total no cobrado" : "Total a pagar"}</span>
               <strong>{formatCurrency(order.total)}</strong>
-              <small>Pedido {order.numero_pedido} · Pago contraentrega en efectivo</small>
+              <small>Pedido {order.numero_pedido} · {metodoPagoLabel}</small>
             </div>
           </div>
         </section>
@@ -171,7 +213,7 @@ export default function PedidoConfirmado() {
                 )}
                 <div className="summary-row">
                   <span>Método de pago</span>
-                  <strong>Contraentrega</strong>
+                  <strong>{metodoPagoLabel}</strong>
                 </div>
                 <div className="summary-row total">
                   <span>Total</span>
@@ -214,8 +256,12 @@ export default function PedidoConfirmado() {
         </div>
 
         <div className="actions">
-          <button className="btn-primary" onClick={() => navigate("/menu")}>Hacer otro pedido</button>
-          <button className="btn-secondary" onClick={() => window.print()}>Imprimir resumen</button>
+          <button className="btn-primary" onClick={() => navigate("/menu")}>
+            {esRechazado ? "Volver al menú e intentar de nuevo" : "Hacer otro pedido"}
+          </button>
+          {!esRechazado && (
+            <button className="btn-secondary" onClick={() => window.print()}>Imprimir resumen</button>
+          )}
         </div>
       </div>
     </>
