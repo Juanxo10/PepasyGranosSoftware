@@ -4,7 +4,7 @@ import logo from "../assets/image.png";
 
 const LINKS = [
   { id: "inicio", label: "Inicio", to: "/" },
-  { id: "ubicacion", label: "Ubicaciones", to: "/ubicacion" },
+  { id: "ubicacion", label: "Ubicación", to: "/ubicacion" },
   { id: "sugerencias", label: "Sugerencias", to: "/sugerencias" },
 ];
 
