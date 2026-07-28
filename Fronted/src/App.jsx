@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { API_URL } from './config'
 import Index from './pages/index'
 import Menu from './pages/menu'
+import Ubicacion from './pages/ubicacion'
+import Sugerencias from './pages/sugerencias'
 import Pago from './pages/pago'
 import Admin from './pages/admin'
 import Login from './pages/login'
@@ -41,6 +43,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/menu" element={<Menu />} />
+        <Route path="/ubicacion" element={<Ubicacion />} />
+        <Route path="/sugerencias" element={<Sugerencias />} />
         <Route path="/pago" element={<Pago />} />
         <Route path="/pedido-confirmado" element={<PedidoConfirmado />} />
         <Route path="/login" element={<Login />} />

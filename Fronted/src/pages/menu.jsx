@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/image.png";
+import Navbar from "../components/Navbar";
 import { API_URL } from "../config";
 import {
   CARBOS, TOPPINGS, PROTEINAS, BEBIDAS, CAFETERIA, ALL_EXTRAS,
@@ -14,13 +14,7 @@ const CSS = `
 :root{--g900:#1a2e1b;--g800:#2D4A2F;--g700:#3a5e3c;--g600:#4A7C59;--g400:#7ab87a;--g200:#d4ead4;--g100:#edf7ed;--gold:#c8a84b;--cream:#f5f3ef;--border:#e2ddd6;--text:#1a2e1b;--muted:#6b7a6b;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
-.topnav{background:var(--g800);display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.5rem;position:sticky;top:0;z-index:50;}
-.brand-wrap{display:flex;align-items:center;gap:.65rem;}
-.brand-logo{width:68px;height:68px;object-fit:contain;border-radius:8px;flex-shrink:0;}
-.brand-name{font-size:1.35rem;font-weight:800;color:#fff;letter-spacing:-.5px;}
-.brand-sub{font-size:.6rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--g400);margin-top:.1rem;}
 .bowl-badge{background:var(--gold);color:var(--g900);border-radius:999px;font-size:.78rem;font-weight:700;padding:.3rem .9rem;display:flex;align-items:center;gap:.35rem;}
-.nav-right{display:flex;align-items:center;gap:.65rem;}
 .home-btn{background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:8px;padding:.38rem .9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:.4rem;white-space:nowrap;}
 .home-btn:hover{background:rgba(255,255,255,.18);}
 .dot{width:7px;height:7px;background:var(--g900);border-radius:50%;}
@@ -54,7 +48,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:va
 .add-btn{width:100%;padding:.85rem;background:var(--g800);color:#fff;border:none;border-radius:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:all .15s;}
 .add-btn:hover{background:var(--g700);}
 .plus-ic{width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;line-height:1;}
-.rp{background:#fff;display:flex;flex-direction:column;border-left:1px solid var(--border);position:sticky;top:90px;height:calc(100vh - 90px);overflow:hidden;}
+.rp{background:#fff;display:flex;flex-direction:column;border-left:1px solid var(--border);position:sticky;top:96px;height:calc(100vh - 96px);overflow:hidden;}
 .rt{padding:1.1rem 1.3rem .8rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;}
 .rt h3{font-size:1rem;font-weight:700;}
 .rt .sub{font-size:.75rem;color:var(--muted);margin-top:.1rem;}
@@ -102,7 +96,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:va
 .closed-sub{font-size:.95rem;color:var(--muted);line-height:1.65;max-width:38ch;margin:0 auto 2rem;}
 .closed-badge{display:inline-flex;align-items:center;gap:.5rem;background:#fee2e2;color:#991b1b;border:1.5px solid #fca5a5;border-radius:999px;padding:.45rem 1.1rem;font-size:.82rem;font-weight:700;margin-bottom:1.6rem;}
 .closed-badge .cd{width:8px;height:8px;border-radius:50%;background:#991b1b;}
-@media(max-width:720px){.layout{grid-template-columns:1fr;}.rp{position:static;height:auto;border-left:none;border-top:1px solid var(--border);}.pgrid{grid-template-columns:repeat(2,1fr);}.topnav{padding:.7rem 1rem;}.brand-sub{display:none;}.brand-name{font-size:1.1rem;}.nav-right{gap:.45rem;}.home-btn{padding:.32rem .65rem;font-size:.72rem;}.bowl-badge{font-size:.7rem;padding:.25rem .7rem;}.cafgrid{grid-template-columns:1fr;}}
+@media(max-width:720px){.layout{grid-template-columns:1fr;}.rp{position:static;height:auto;border-left:none;border-top:1px solid var(--border);}.pgrid{grid-template-columns:repeat(2,1fr);}.home-btn{padding:.32rem .65rem;font-size:.72rem;}.bowl-badge{font-size:.7rem;padding:.25rem .7rem;}.cafgrid{grid-template-columns:1fr;}}
 .pill.disabled{opacity:.5;cursor:not-allowed;background:#f5f3ef;border-color:var(--border);color:var(--muted);}
 .pill-remove{margin-left:auto;padding-left:.4rem;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;line-height:1;opacity:.6;transition:opacity .15s;}
 .pill:hover .pill-remove{opacity:1;}
@@ -231,22 +225,17 @@ export default function Menu() {
     <>
       <style>{CSS}</style>
 
-      <div className="topnav">
-        <div className="brand-wrap">
-          <img src={logo} alt="Pepas logo" className="brand-logo" />
-          <div>
-            <div className="brand-name">pepas coffee</div>
-            <div className="brand-sub">Bowls frescos · Vida saludable</div>
-          </div>
-        </div>
-        <div className="nav-right">
-          <button className="home-btn" onClick={() => navigate("/")}>← Inicio</button>
+      <Navbar
+        active="menu"
+        position="sticky"
+        showLinks={false}
+        rightSlot={
           <div className="bowl-badge">
             <span className="dot"></span>
             <span id="bowl-count">{n} bowl{n !== 1 ? "s" : ""}</span>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {tiendaAbierta === null && (
         <div className="closed-screen">
