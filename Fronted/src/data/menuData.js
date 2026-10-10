@@ -7,7 +7,7 @@ export const CARBOS = ["Arroz integral", "Papa criolla", "Quinoa"];
 export const TOPPINGS = [
   "Aguacate", "Champiñones", "Cherry", "Maíz", "Zanahoria", "Pepino",
   "Guacamole", "Repollo morado", "Piña asada", "Mango", "Pico de gallo",
-  "Tomate cherry", "Nueces", "Nachos", "Brócoli", "Queso",
+  "Nueces", "Nachos", "Brócoli", "Queso",
 ];
 
 export const PROTEINAS = [
