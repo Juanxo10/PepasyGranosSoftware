@@ -140,7 +140,7 @@ export default function Pago() {
     return s + (CAFETERIA_PRECIOS[n] ?? 0) * qty + almondExtra;
   }, 0);
   const domicilioCosto = tipoEntrega === "recogida" ? 0 : DOM;
-  const grandTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots, b.bev), 0) + extrasSubtotal + domicilioCosto;
+  const grandTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots, b.bev, tipoEntrega === "recogida"), 0) + extrasSubtotal + domicilioCosto;
 
   const validateDelivery = () => {
     const e = {};
@@ -405,13 +405,15 @@ export default function Pago() {
               <div key={i} style={{ marginBottom: ".4rem" }}>
                 <div className="srow">
                   <span className="sl">Bowl {i + 1} · {b.carb} · {b.prots.map(protName).join(", ")}{b.bev ? " · " + b.bev : ""}</span>
-                  <span className="sv">{fmt(calcBowlPrice(b.tops, b.prots, b.bev))}</span>
+                  <span className="sv">{fmt(calcBowlPrice(b.tops, b.prots, b.bev, tipoEntrega === "recogida"))}</span>
                 </div>
+                {tipoEntrega !== "recogida" && (
                 <div className="srow" style={{ opacity: .7, fontSize: ".75rem", paddingLeft: ".5rem" }}>
                   <span className="sl">Caja</span>
                   <span className="sv">+{fmt(CAJA)}</span>
                 </div>
-                {b.bev && (
+                )}
+                {tipoEntrega !== "recogida" && b.bev && (
                   <div className="srow" style={{ opacity: .7, fontSize: ".75rem", paddingLeft: ".5rem" }}>
                     <span className="sl">Vaso</span>
                     <span className="sv">+{fmt(VASO)}</span>
