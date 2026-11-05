@@ -108,7 +108,7 @@ export default function Pago() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [payMethod, setPayMethod] = useState("efectivo"); // "efectivo" | "wompi"
-  const [tipoEntrega, setTipoEntrega] = useState("domicilio"); // "domicilio" | "recogida"
+  const [tipoEntrega, setTipoEntrega] = useState("domicilio"); // "domicilio" | "recogida" | "comer_aqui"
 
   const fnameRef = useRef(null);
 
@@ -139,8 +139,8 @@ export default function Pago() {
     const almondExtra = (FRAPPES_NOMBRES.has(n) && frappesAlmond[n]) ? LECHE_ALMENDRAS * qty : 0;
     return s + (CAFETERIA_PRECIOS[n] ?? 0) * qty + almondExtra;
   }, 0);
-  const domicilioCosto = tipoEntrega === "recogida" ? 0 : DOM;
-  const grandTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots, b.bev, tipoEntrega === "recogida"), 0) + extrasSubtotal + domicilioCosto;
+  const domicilioCosto = tipoEntrega !== "domicilio" ? 0 : DOM;
+  const grandTotal = bowls.reduce((s, b) => s + calcBowlPrice(b.tops, b.prots, b.bev, tipoEntrega === "comer_aqui"), 0) + extrasSubtotal + domicilioCosto;
 
   const validateDelivery = () => {
     const e = {};
@@ -407,15 +407,15 @@ export default function Pago() {
               <div key={i} style={{ marginBottom: ".4rem" }}>
                 <div className="srow">
                   <span className="sl">Bowl {i + 1} · {b.carb} · {b.prots.map(protName).join(", ")}{b.bev ? " · " + b.bev : ""}</span>
-                  <span className="sv">{fmt(calcBowlPrice(b.tops, b.prots, b.bev, tipoEntrega === "recogida"))}</span>
+                  <span className="sv">{fmt(calcBowlPrice(b.tops, b.prots, b.bev, tipoEntrega === "comer_aqui"))}</span>
                 </div>
-                {tipoEntrega !== "recogida" && (
+                {tipoEntrega !== "comer_aqui" && (
                 <div className="srow" style={{ opacity: .7, fontSize: ".75rem", paddingLeft: ".5rem" }}>
                   <span className="sl">Caja</span>
                   <span className="sv">+{fmt(CAJA)}</span>
                 </div>
                 )}
-                {tipoEntrega !== "recogida" && b.bev && (
+                {tipoEntrega !== "comer_aqui" && b.bev && (
                   <div className="srow" style={{ opacity: .7, fontSize: ".75rem", paddingLeft: ".5rem" }}>
                     <span className="sl">Vaso</span>
                     <span className="sv">+{fmt(VASO)}</span>
@@ -435,7 +435,7 @@ export default function Pago() {
             })}
             <div className="srow">
               <span className="sl">Domicilio</span>
-              <span className="sv">{tipoEntrega === "recogida" ? <span style={{color:"var(--g600)",fontWeight:700}}>Gratis (recogida)</span> : fmt(DOM)}</span>
+              <span className="sv">{tipoEntrega !== "domicilio" ? <span style={{color:"var(--g600)",fontWeight:700}}>Gratis</span> : fmt(DOM)}</span>
             </div>
             <div className="srow stot">
               <span className="sl">Total estimado</span>
@@ -458,16 +458,25 @@ export default function Pago() {
           <div className={`pm${tipoEntrega === "recogida" ? " sel" : ""}`} onClick={() => setTipoEntrega("recogida")}>
             <div className="pm-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--g700)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
             <div className="pm-info">
-              <strong>Recoger en tienda / Comer aquí</strong>
-              <span>Ven a Pepas Coffee y recoge tu pedido. Sin costo de domicilio.</span>
-              <span className="pm-badge">Gratis</span>
+              <strong>Recoger en tienda</strong>
+              <span>Pasa por Pepas Coffee y llévate tu pedido empacado. Incluye caja y vaso, sin costo de domicilio.</span>
+              <span className="pm-badge">Sin domicilio</span>
             </div>
             <div className="pm-radio">{tipoEntrega === "recogida" ? "✓" : ""}</div>
+          </div>
+          <div className={`pm${tipoEntrega === "comer_aqui" ? " sel" : ""}`} onClick={() => setTipoEntrega("comer_aqui")}>
+            <div className="pm-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--g700)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+            <div className="pm-info">
+              <strong>Comer aquí</strong>
+              <span>Come en Pepas Coffee. Sin caja ni vaso y sin costo de domicilio.</span>
+              <span className="pm-badge">Sin caja ni vaso</span>
+            </div>
+            <div className="pm-radio">{tipoEntrega === "comer_aqui" ? "✓" : ""}</div>
           </div>
         </div>
 
         {/* Datos de entrega */}
-        <span className="slabel">{tipoEntrega === "recogida" ? "Tus datos de contacto" : "Datos de entrega"}</span>
+        <span className="slabel">{tipoEntrega !== "domicilio" ? "Tus datos de contacto" : "Datos de entrega"}</span>
         <div className="form-card">
           <div className="form-grid">
             <div className="form-group">
@@ -513,8 +522,8 @@ export default function Pago() {
           <div className={`pm${payMethod === "efectivo" ? " sel" : ""}`} onClick={() => setPayMethod("efectivo")}>
             <div className="pm-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--g700)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 9v6M10 10h3a1 1 0 0 1 0 2h-2a1 1 0 0 0 0 2h3"/></svg></div>
             <div className="pm-info">
-              <strong>{tipoEntrega === "recogida" ? "Pagar en caja" : "Contraentrega en efectivo"}</strong>
-              <span>{tipoEntrega === "recogida" ? "Pagas directamente en la tienda al recoger tu pedido." : "Pagas al domiciliario cuando llegue tu pedido."}</span>
+              <strong>{tipoEntrega !== "domicilio" ? "Pagar en caja" : "Contraentrega en efectivo"}</strong>
+              <span>{tipoEntrega !== "domicilio" ? "Pagas directamente en la tienda." : "Pagas al domiciliario cuando llegue tu pedido."}</span>
             </div>
             <div className="pm-radio">{payMethod === "efectivo" ? "✓" : ""}</div>
           </div>
@@ -536,7 +545,7 @@ export default function Pago() {
             <ul>
               <li>Confirmas tu pedido desde esta página</li>
               <li>Preparamos tu pedido</li>
-              {tipoEntrega === "recogida"
+              {tipoEntrega !== "domicilio"
                 ? <li>Vienes a la tienda y pagas en caja</li>
                 : <li>Despachamos y pagas en efectivo al domiciliario</li>
               }

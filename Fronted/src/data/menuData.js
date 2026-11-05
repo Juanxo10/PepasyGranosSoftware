@@ -35,14 +35,14 @@ export const FRAPPES_NAMES = new Set([
   "Frappe té chai", "Caños cristales", "Caños negros", "Macarena",
 ]);
 
-export const calcBowlPrice = (tops = [], prots = [], bev = null, recogida = false) => {
+export const calcBowlPrice = (tops = [], prots = [], bev = null, sinEmpaque = false) => {
   const toppingsCost = Math.max(0, tops.length - TOPPINGS_GRATIS) * TOPPING_EXTRA;
   const protsCost = prots.reduce((s, p) => {
     const name = typeof p === "string" ? p : p?.name;
     const prot = PROTEINAS.find((x) => x.name === name);
     return s + (prot?.price ?? 0);
   }, 0);
-  return BOWL_BASE + toppingsCost + protsCost + (recogida ? 0 : CAJA + (bev ? VASO : 0));
+  return BOWL_BASE + toppingsCost + protsCost + (sinEmpaque ? 0 : CAJA + (bev ? VASO : 0));
 };
 
 export const CAFETERIA = [

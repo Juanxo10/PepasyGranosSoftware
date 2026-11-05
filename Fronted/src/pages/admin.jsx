@@ -877,8 +877,8 @@ export default function Admin() {
     const extras = Object.keys(o.extraItems || {}).length
       ? `<div class="divider"></div><div class="section-lbl">PRODUCTOS ADICIONALES</div><div class="extra-list">${Object.entries(o.extraItems).map(([n,q]) => `<div class="extra-row"><span>${n}</span><span>x${q}</span></div>`).join("")}</div>`
       : "";
-    const entrega = o.tipo_entrega === "recogida"
-      ? `<div class="addr-type">&#9632; RECOGE EN TIENDA</div>`
+    const entrega = o.tipo_entrega !== "domicilio"
+      ? `<div class="addr-type">&#9632; ${o.tipo_entrega === "comer_aqui" ? "COME AQUI" : "RECOGE EN TIENDA"}</div>`
       : `<div class="addr-type">&#9632; DOMICILIO</div><div class="addr-text">${o.addr}, ${o.barrio}${o.ref ? `<br>${o.ref}` : ""}</div>`;
     const now = new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
     const date = new Date().toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -1125,7 +1125,7 @@ export default function Admin() {
           ) : (
             filtered.map((o) => {
               const payIcon = o.pago.includes("efectivo") ? "Efectivo" : o.pago.includes("Nequi") ? "Nequi" : "Tarjeta";
-              const pagoLabel = (o.tipo_entrega === "recogida" && o.pago.includes("efectivo")) ? "Pagar en caja" : o.pago;
+              const pagoLabel = (o.tipo_entrega !== "domicilio" && o.pago.includes("efectivo")) ? "Pagar en caja" : o.pago;
               return (
                 <div key={o.id} className="order-card">
                   <div className="oc-head">
@@ -1175,8 +1175,8 @@ export default function Admin() {
                     <div className="addr-row">
                       <span className="addr-icon"></span>
                       <div>
-                        {o.tipo_entrega === "recogida"
-                          ? <div className="addr-text" style={{color:"var(--g700)",fontWeight:600}}>Recogida en tienda / Come aquí</div>
+                        {o.tipo_entrega !== "domicilio"
+                          ? <div className="addr-text" style={{color:"var(--g700)",fontWeight:600}}>{o.tipo_entrega === "comer_aqui" ? "Come aquí" : "Recoger en tienda"}</div>
                           : <><div className="addr-text">{o.addr}, {o.barrio}</div>{o.ref && <div className="addr-ref">{o.ref}</div>}</>
                         }
                       </div>
@@ -1186,7 +1186,7 @@ export default function Admin() {
                   <div className="oc-footer">
                     <div>
                       <div className="price-total">{fmt(o.total)}</div>
-                      <div className="price-sub">{o.bowls.length} bowl{o.bowls.length !== 1 ? "s" : ""}{Object.keys(o.extraItems || {}).length > 0 ? " + productos" : ""}{o.tipo_entrega === "recogida" ? " · recogida" : " + domicilio"}</div>
+                      <div className="price-sub">{o.bowls.length} bowl{o.bowls.length !== 1 ? "s" : ""}{Object.keys(o.extraItems || {}).length > 0 ? " + productos" : ""}{o.tipo_entrega === "comer_aqui" ? " · come aquí" : o.tipo_entrega === "recogida" ? " · recogida" : " + domicilio"}</div>
                     </div>
                     <div className="footer-actions">
                       <button className="btn-print" onClick={() => printOrder(o)} title="Imprimir ticket de cocina">🖨️ Imprimir</button>
@@ -1259,7 +1259,7 @@ export default function Admin() {
               <div className="orders-grid">
                 {histByDate[dateKey].map((o) => {
                   const payIcon = o.pago.includes("efectivo") ? "Efectivo" : o.pago.includes("Nequi") ? "Nequi" : "Tarjeta";
-                  const pagoLabel = (o.tipo_entrega === "recogida" && o.pago.includes("efectivo")) ? "Pagar en caja" : o.pago;
+                  const pagoLabel = (o.tipo_entrega !== "domicilio" && o.pago.includes("efectivo")) ? "Pagar en caja" : o.pago;
                   return (
                     <div key={o.id} className="order-card">
                       <div className="oc-head">
@@ -1309,8 +1309,8 @@ export default function Admin() {
                         <div className="addr-row">
                           <span className="addr-icon"></span>
                           <div>
-                            {o.tipo_entrega === "recogida"
-                              ? <div className="addr-text" style={{color:"var(--g700)",fontWeight:600}}>Recogida en tienda / Come aquí</div>
+                            {o.tipo_entrega !== "domicilio"
+                              ? <div className="addr-text" style={{color:"var(--g700)",fontWeight:600}}>{o.tipo_entrega === "comer_aqui" ? "Come aquí" : "Recoger en tienda"}</div>
                               : <><div className="addr-text">{o.addr}, {o.barrio}</div>{o.ref && <div className="addr-ref">{o.ref}</div>}</>
                             }
                           </div>
@@ -1320,7 +1320,7 @@ export default function Admin() {
                       <div className="oc-footer">
                         <div>
                           <div className="price-total">{fmt(o.total)}</div>
-                          <div className="price-sub">{o.bowls.length} bowl{o.bowls.length !== 1 ? "s" : ""}{Object.keys(o.extraItems || {}).length > 0 ? " + productos" : ""}{o.tipo_entrega === "recogida" ? " · recogida" : " + domicilio"}</div>
+                          <div className="price-sub">{o.bowls.length} bowl{o.bowls.length !== 1 ? "s" : ""}{Object.keys(o.extraItems || {}).length > 0 ? " + productos" : ""}{o.tipo_entrega === "comer_aqui" ? " · come aquí" : o.tipo_entrega === "recogida" ? " · recogida" : " + domicilio"}</div>
                         </div>
                         <div className="footer-actions">
                           <span className="done-text">{statusLabel(o.status, o.estado_pago)}</span>

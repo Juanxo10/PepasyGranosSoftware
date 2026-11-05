@@ -2,7 +2,7 @@ const pool = require("../db");
 
 const ESTADOS_VALIDOS = ["nuevo", "preparando", "camino", "entregado", "cancelado"];
 const METODOS_VALIDOS = ["Contraentrega en efectivo", "Transferencia Wompi"];
-const TIPOS_ENTREGA_VALIDOS = ["domicilio", "recogida"];
+const TIPOS_ENTREGA_VALIDOS = ["domicilio", "recogida", "comer_aqui"];
 
 // ── Caché en memoria para pedidos ───────────────────────
 let _cache = null;
@@ -24,7 +24,8 @@ async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_p
     throw { status: 400, message: "Tipo de entrega no válido" };
   }
 
-  const esRecogida = tipo_entrega === "recogida";
+  const esRecogida = tipo_entrega !== "domicilio"; // recogida o comer aquí: sin domicilio ni dirección
+  const comerAqui = tipo_entrega === "comer_aqui"; // sin caja ni vaso
   const { nombre, telefono, direccion, barrio, referencia, notas } = cliente || {};
 
   if (!nombre || !telefono) {
@@ -57,9 +58,9 @@ async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_p
     const TOPPINGS_GRATIS = conf.toppings_gratis   ?? conf.toppings_incluidos      ?? 4;
     const TOPPING_EXTRA   = conf.topping_extra      ?? conf.precio_topping_extra   ?? 3000;
     const LECHE_ALMENDRAS_PRECIO = conf.leche_almendras ?? 2500;
-    // En recogida (comer en el local) no se cobra caja ni vaso
-    const CAJA            = esRecogida ? 0 : (conf.caja ?? 1000);
-    const VASO            = esRecogida ? 0 : (conf.vaso ?? 1000);
+    // Comer aquí no lleva caja ni vaso; recoger en tienda sí (va empacado)
+    const CAJA            = comerAqui ? 0 : (conf.caja ?? 1000);
+    const VASO            = comerAqui ? 0 : (conf.vaso ?? 1000);
 
     // Recopilar todos los nombres de productos necesarios
     const allNames = new Set();
