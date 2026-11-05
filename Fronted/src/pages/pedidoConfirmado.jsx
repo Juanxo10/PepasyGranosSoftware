@@ -178,8 +178,9 @@ export default function PedidoConfirmado() {
                     {bowl.lechuga ? "Incluye lechuga" : "Sin lechuga"}
                     {" · "}
                     {bowl.vinagreta ? "Incluye vinagreta" : "Sin vinagreta"}
-                    {" · "}
-                    Caja +$1.000{bowl.bev ? " · Vaso +$1.000" : ""}
+                    {order.tipo_entrega !== "recogida" && (
+                      <>{" · "}Caja +$1.000{bowl.bev ? " · Vaso +$1.000" : ""}</>
+                    )}
                   </div>
                 </article>
               ))}

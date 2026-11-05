@@ -57,8 +57,9 @@ async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_p
     const TOPPINGS_GRATIS = conf.toppings_gratis   ?? conf.toppings_incluidos      ?? 4;
     const TOPPING_EXTRA   = conf.topping_extra      ?? conf.precio_topping_extra   ?? 3000;
     const LECHE_ALMENDRAS_PRECIO = conf.leche_almendras ?? 2500;
-    const CAJA            = conf.caja              ?? 1000;
-    const VASO            = conf.vaso              ?? 1000;
+    // En recogida (comer en el local) no se cobra caja ni vaso
+    const CAJA            = esRecogida ? 0 : (conf.caja ?? 1000);
+    const VASO            = esRecogida ? 0 : (conf.vaso ?? 1000);
 
     // Recopilar todos los nombres de productos necesarios
     const allNames = new Set();

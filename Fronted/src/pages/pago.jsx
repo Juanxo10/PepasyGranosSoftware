@@ -240,6 +240,7 @@ export default function Pago() {
         extraItems,
         cliente: payload.cliente,
         metodo_pago: payload.metodo_pago,
+        tipo_entrega: payload.tipo_entrega,
       };
 
       try {
@@ -312,6 +313,7 @@ export default function Pago() {
         extraItems,
         cliente: payload.cliente,
         metodo_pago: payload.metodo_pago,
+        tipo_entrega: payload.tipo_entrega,
       };
 
       try {
