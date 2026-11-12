@@ -37,7 +37,7 @@ const DOCS = {
   "/terminos": {
     titulo: "Términos de Servicio",
     secciones: [
-      ["Servicio", [`${NEGOCIO.nombre} ofrece venta de bowls y bebidas con entrega a domicilio, recogida en tienda o consumo en el local en ${NEGOCIO.direccion}.`]],
+      ["Servicio", [`${NEGOCIO.nombre}${NEGOCIO.nit ? ` (NIT ${NEGOCIO.nit})` : ""} ofrece venta de bowls y bebidas con entrega a domicilio, recogida en tienda o consumo en el local en ${NEGOCIO.direccion}.`]],
       ["Pedidos y precios", ["Al confirmar tu pedido aceptas estos términos. Los precios se calculan en nuestro servidor y pueden cambiar sin previo aviso; el valor aplicable es el mostrado al confirmar. El domicilio, la caja y el vaso se cobran según el tipo de entrega elegido."]],
       ["Pagos", ["Puedes pagar en efectivo (contraentrega o en caja) o en línea mediante Wompi."]],
       ["Tus datos", ["El tratamiento de tus datos se rige por nuestra Política de Privacidad."]],

@@ -59,9 +59,6 @@ export default function Footer() {
           <span className="font-label-md text-label-md text-on-surface-variant">
             © {new Date().getFullYear()} {NEGOCIO.nombre}. Nutriendo tu cuerpo, mente y alma.
           </span>
-          {NEGOCIO.nit && (
-            <span className="font-label-md text-label-md text-on-surface-variant">NIT {NEGOCIO.nit}</span>
-          )}
         </div>
       </div>
     </footer>
