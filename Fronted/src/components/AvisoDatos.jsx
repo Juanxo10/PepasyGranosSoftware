@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { almacenLocal } from "../data/almacen";
-import { leerConsentimiento, guardarConsentimiento, alAbrirPreferencias } from "../data/preferencias";
+import { guardarConsentimiento, alAbrirPreferencias } from "../data/preferencias";
 
 export default function AvisoDatos() {
   const { pathname } = useLocation();
-  const [visible, setVisible] = useState(() => leerConsentimiento() === null);
+  const [visible, setVisible] = useState(true);
   useEffect(() => alAbrirPreferencias(() => setVisible(true)), []);
 
   // El personal no ve el aviso

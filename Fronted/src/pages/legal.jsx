@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import EnlacesLegales from "../components/EnlacesLegales";
+import Footer from "../components/Footer";
 import { NEGOCIO } from "../data/legalData";
 import { abrirPreferencias } from "../data/preferencias";
 
@@ -84,9 +84,7 @@ export default function Legal() {
           </section>
         ))}
       </main>
-      <footer className="bg-surface-container border-t border-outline-variant py-8 px-gutter">
-        <EnlacesLegales />
-      </footer>
+      <Footer />
     </div>
   );
 }

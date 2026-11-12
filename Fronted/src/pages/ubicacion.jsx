@@ -1,7 +1,6 @@
 import Navbar from "../components/Navbar";
 import { useConsentimiento, guardarConsentimiento } from "../data/preferencias";
-import EnlacesLegales from "../components/EnlacesLegales";
-import logoDark from "../assets/log.png";
+import Footer from "../components/Footer";
 
 export default function Ubicacion() {
   const consent = useConsentimiento();
@@ -80,30 +79,7 @@ export default function Ubicacion() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-surface-container border-t border-outline-variant">
-        <div className="max-w-container-max mx-auto px-gutter py-12 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-          <div className="flex items-center gap-3">
-            <img alt="Pepas Coffee" className="h-10 w-auto object-contain" src={logoDark} />
-            <span className="font-label-md text-label-md text-on-surface-variant">
-              © {new Date().getFullYear()} Pepas Coffee
-            </span>
-          </div>
-          <a
-            className="w-10 h-10 rounded-full border border-primary-container flex items-center justify-center text-primary-container hover:bg-primary-container hover:text-white transition-all"
-            href="https://www.instagram.com/pepascoffee/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram de Pepas Coffee"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <rect x="2" y="2" width="20" height="20" rx="5" />
-              <circle cx="12" cy="12" r="4.2" />
-              <circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" stroke="none" />
-            </svg>
-          </a>
-        </div>
-        <div className="pb-8 px-gutter"><EnlacesLegales /></div>
-      </footer>
+      <Footer />
     </div>
   );
 }
