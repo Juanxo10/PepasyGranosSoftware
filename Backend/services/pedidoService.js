@@ -1,4 +1,5 @@
 const pool = require("../db");
+const { registrar } = require("./consentimientoService");
 
 const ESTADOS_VALIDOS = ["nuevo", "preparando", "camino", "entregado", "cancelado"];
 const METODOS_VALIDOS = ["Contraentrega en efectivo", "Transferencia Wompi"];
@@ -15,7 +16,10 @@ function invalidarCache() {
 }
 
 // ── Crear pedido ─────────────────────────────────────────
-async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_pago, tipo_entrega = "domicilio" }) {
+async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_pago, tipo_entrega = "domicilio", acepta_terminos, acepta_datos, ip, user_agent }) {
+  if (acepta_terminos !== true || acepta_datos !== true) {
+    throw { status: 400, message: "Debes aceptar los Términos de Servicio y autorizar el tratamiento de tus datos para hacer tu pedido" };
+  }
   if (!METODOS_VALIDOS.includes(metodo_pago)) {
     throw { status: 400, message: "Método de pago no disponible" };
   }
@@ -178,12 +182,13 @@ async function crearPedido({ bowls, extraItems, frappesAlmond, cliente, metodo_p
 
     const pedidoRes = await client.query(
       `INSERT INTO pedidos
-        (numero_pedido, nombre_cliente, telefono, direccion, barrio, referencia, notas, metodo_pago, subtotal, domicilio, total, estado, tipo_entrega)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+        (numero_pedido, nombre_cliente, telefono, direccion, barrio, referencia, notas, metodo_pago, subtotal, domicilio, total, estado, tipo_entrega, acepto_terminos_en)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,NOW())
        RETURNING id, numero_pedido, total`,
       [numero_pedido, nombre, telefono, esRecogida ? null : direccion, esRecogida ? null : barrio, referencia || null, notasFinal, metodo_pago, subtotal, DOMICILIO, total, estadoInicial, tipo_entrega]
     );
     const pedidoId = pedidoRes.rows[0].id;
+    await registrar(client, { tipos: ["terminos", "datos"], pedidoId, ip, userAgent: user_agent });
 
     // Insertar bowls + items
     for (const bd of bowlsData) {

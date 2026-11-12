@@ -107,6 +107,10 @@ export default function Pago() {
   // Field errors
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
+  const [aceptaDatos, setAceptaDatos] = useState(false);
+  const [errLegal, setErrLegal] = useState(false);
+  const legalRef = useRef(null);
   const [payMethod, setPayMethod] = useState("efectivo"); // "efectivo" | "wompi"
   const [tipoEntrega, setTipoEntrega] = useState("domicilio"); // "domicilio" | "recogida" | "comer_aqui"
 
@@ -191,6 +195,13 @@ export default function Pago() {
     return Object.keys(e).length === 0;
   };
 
+  const faltaLegal = () => {
+    const falta = !aceptaTerminos || !aceptaDatos;
+    setErrLegal(falta);
+    if (falta) legalRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    return falta;
+  };
+
   const handleConfirm = async () => {
     if (isSubmitting) {
       return;
@@ -200,6 +211,7 @@ export default function Pago() {
       fnameRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+    if (faltaLegal()) return;
 
     // Guardar pedido en backend
     const payload = {
@@ -216,6 +228,8 @@ export default function Pago() {
       },
       metodo_pago: "Contraentrega en efectivo",
       tipo_entrega: tipoEntrega,
+      acepta_terminos: aceptaTerminos,
+      acepta_datos: aceptaDatos,
     };
 
     try {
@@ -274,6 +288,7 @@ export default function Pago() {
       fnameRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+    if (faltaLegal()) return;
 
     const payload = {
       bowls,
@@ -289,6 +304,8 @@ export default function Pago() {
       },
       metodo_pago: "Transferencia Wompi",
       tipo_entrega: tipoEntrega,
+      acepta_terminos: aceptaTerminos,
+      acepta_datos: aceptaDatos,
     };
 
     try {
@@ -566,6 +583,19 @@ export default function Pago() {
             </ul>
           </div>
         )}
+
+        {/* Autorización Ley 1581 de 2012 */}
+        <div ref={legalRef} style={{ display: "flex", flexDirection: "column", gap: ".6rem", margin: "1rem 0", fontSize: ".8rem", lineHeight: 1.5 }}>
+          <label style={{ display: "flex", gap: ".5rem", alignItems: "flex-start" }}>
+            <input type="checkbox" checked={aceptaTerminos} onChange={(e) => setAceptaTerminos(e.target.checked)} />
+            <span>Leí y acepto los <a href="/terminos" target="_blank" rel="noopener noreferrer" className="underline text-primary">Términos de Servicio</a> y la <a href="/reembolsos" target="_blank" rel="noopener noreferrer" className="underline text-primary">Política de Cancelaciones y Reembolsos</a>.</span>
+          </label>
+          <label style={{ display: "flex", gap: ".5rem", alignItems: "flex-start" }}>
+            <input type="checkbox" checked={aceptaDatos} onChange={(e) => setAceptaDatos(e.target.checked)} />
+            <span>Autorizo el tratamiento de mis datos personales (nombre, teléfono y dirección) para gestionar este pedido, según la <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="underline text-primary">Política de Privacidad</a>.</span>
+          </label>
+          {errLegal && (!aceptaTerminos || !aceptaDatos) && <span className="err-msg show">Debes marcar ambas casillas para continuar con tu pedido</span>}
+        </div>
 
         {/* CTA */}
         <div>

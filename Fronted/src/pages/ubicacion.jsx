@@ -1,7 +1,10 @@
 import Navbar from "../components/Navbar";
+import { useConsentimiento, guardarConsentimiento } from "../data/preferencias";
+import EnlacesLegales from "../components/EnlacesLegales";
 import logoDark from "../assets/log.png";
 
 export default function Ubicacion() {
+  const consent = useConsentimiento();
   return (
     <div className="bg-background text-on-surface font-body-md overflow-x-hidden min-h-screen flex flex-col">
       <Navbar active="ubicacion" />
@@ -60,13 +63,18 @@ export default function Ubicacion() {
             </div>
           </div>
           <div className="rounded-xl overflow-hidden shadow-2xl aspect-[4/3]">
-            <iframe
+            {consent === "todas" ? <iframe
               title="Ubicación de Pepas Coffee en Acacías, Meta"
               className="w-full h-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               src="https://www.google.com/maps?q=Cl.%2013%20%2315-01%2C%20Acac%C3%ADas%2C%20Meta%2C%20Colombia&output=embed"
-            />
+            /> : (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-4 bg-surface-container p-6 text-center">
+                <p className="font-body-md text-on-surface-variant">El mapa de Google solo se carga si aceptas todas las cookies.</p>
+                <button className="bg-primary-container text-white px-6 py-2 rounded-full font-label-md text-label-md hover:bg-primary transition-all" onClick={() => guardarConsentimiento("todas")}>Aceptar y ver mapa</button>
+              </div>
+            )}
           </div>
         </div>
       </main>
@@ -94,6 +102,7 @@ export default function Ubicacion() {
             </svg>
           </a>
         </div>
+        <div className="pb-8 px-gutter"><EnlacesLegales /></div>
       </footer>
     </div>
   );

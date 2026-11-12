@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
+import EnlacesLegales from "../components/EnlacesLegales";
 import logoDark from "../assets/log.png";
 import { API_URL } from "../config";
 
@@ -7,12 +8,18 @@ export default function Sugerencias() {
   const [form, setForm] = useState({ nombre: "", mensaje: "" });
   const [state, setState] = useState("idle"); // idle | loading | ok | error
   const [error, setError] = useState("");
+  const [aceptaDatos, setAceptaDatos] = useState(false);
 
   const enviar = async (e) => {
     e.preventDefault();
     if (form.mensaje.trim().length < 5) {
       setState("error");
       setError("El mensaje debe tener al menos 5 caracteres");
+      return;
+    }
+    if (!aceptaDatos) {
+      setState("error");
+      setError("Debes autorizar el tratamiento de tus datos para enviar tu mensaje");
       return;
     }
     setState("loading");
@@ -22,7 +29,7 @@ export default function Sugerencias() {
       res = await fetch(`${API_URL}/api/sugerencias`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, acepta_datos: aceptaDatos }),
       });
     } catch {
       setState("error");
@@ -37,6 +44,7 @@ export default function Sugerencias() {
     }
     setState("ok");
     setForm({ nombre: "", mensaje: "" });
+    setAceptaDatos(false);
   };
 
   return (
@@ -118,6 +126,11 @@ export default function Sugerencias() {
                 </div>
               </div>
 
+              <label className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
+                <input type="checkbox" className="mt-1" checked={aceptaDatos} onChange={(e) => setAceptaDatos(e.target.checked)} />
+                <span>Autorizo el tratamiento de mi mensaje y mi nombre (opcional) solo para atender esta solicitud, según la <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="underline text-primary">Política de Privacidad</a>.</span>
+              </label>
+
               {state === "error" && (
                 <p className="font-body-md text-body-md text-error">{error}</p>
               )}
@@ -157,6 +170,7 @@ export default function Sugerencias() {
             </svg>
           </a>
         </div>
+        <div className="pb-8 px-gutter"><EnlacesLegales /></div>
       </footer>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import EnlacesLegales from "../components/EnlacesLegales";
 import logo from "../assets/image.png";
 import logoDark from "../assets/log.png";
 import heroImg from "../assets/imageninicio.jpg";
@@ -340,6 +341,7 @@ export default function Index() {
             </div>
           </div>
         </div>
+        <div className="pb-8 px-gutter"><EnlacesLegales /></div>
       </footer>
     </div>
   );

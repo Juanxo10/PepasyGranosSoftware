@@ -1,7 +1,11 @@
 const pool = require("../db");
+const { registrar } = require("./consentimientoService");
 
 // ── Crear sugerencia ──────────────────────────────────────
-async function crearSugerencia({ nombre, mensaje }) {
+async function crearSugerencia({ nombre, mensaje, acepta_datos, ip, user_agent }) {
+  if (acepta_datos !== true) {
+    throw { status: 400, message: "Debes autorizar el tratamiento de tus datos para enviar tu mensaje" };
+  }
   if (!mensaje || mensaje.trim().length < 5) {
     throw { status: 400, message: "El mensaje debe tener al menos 5 caracteres" };
   }
@@ -19,6 +23,7 @@ async function crearSugerencia({ nombre, mensaje }) {
     [nombreSanitizado, mensajeSanitizado]
   );
 
+  await registrar(pool, { tipos: ["datos"], sugerenciaId: rows[0].id, ip, userAgent: user_agent });
   return rows[0];
 }
 

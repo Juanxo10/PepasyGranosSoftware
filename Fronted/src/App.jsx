@@ -9,6 +9,8 @@ import Pago from './pages/pago'
 import Admin from './pages/admin'
 import Login from './pages/login'
 import PedidoConfirmado from './pages/pedidoConfirmado'
+import Legal from './pages/legal'
+import AvisoDatos from './components/AvisoDatos'
 
 function ProtectedAdmin() {
   const [auth, setAuth] = useState(null); // null=loading, true, false
@@ -47,9 +49,13 @@ function App() {
         <Route path="/sugerencias" element={<Sugerencias />} />
         <Route path="/pago" element={<Pago />} />
         <Route path="/pedido-confirmado" element={<PedidoConfirmado />} />
+        <Route path="/privacidad" element={<Legal />} />
+        <Route path="/terminos" element={<Legal />} />
+        <Route path="/reembolsos" element={<Legal />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<ProtectedAdmin />} />
       </Routes>
+      <AvisoDatos />
     </BrowserRouter>
   )
 }
